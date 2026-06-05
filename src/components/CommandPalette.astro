@@ -1,0 +1,116 @@
+---
+// Komut paleti (⌘K) — sayfa gezintisi + hızlı aksiyonlar + arama köprüsü.
+// Tüm sayfalarda Base layout üzerinden eklenir.
+import { type Locale, localizePath, useTranslations } from '../i18n/ui';
+
+interface Props {
+	lang: Locale;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const navItems = [
+	{ href: localizePath(lang, '/'), label: t('nav.home'), key: 'home anasayfa' },
+	{ href: localizePath(lang, '/blog'), label: t('nav.blog'), key: 'blog yazılar posts' },
+	{ href: localizePath(lang, '/java'), label: 'Java', key: 'java jvm spring' },
+	{ href: localizePath(lang, '/notes'), label: t('nav.notes'), key: 'notes notlar til' },
+	{ href: localizePath(lang, '/projects'), label: t('nav.projects'), key: 'projects projeler repos' },
+	{ href: localizePath(lang, '/archive'), label: t('nav.archive'), key: 'archive arşiv arsiv' },
+	{ href: localizePath(lang, '/bookmarks'), label: t('nav.bookmarks'), key: 'bookmarks yer imleri links' },
+	{ href: localizePath(lang, '/uses'), label: t('nav.uses'), key: 'uses kullandıklarım kullandiklarim' },
+	{ href: localizePath(lang, '/now'), label: t('nav.now'), key: 'now şu an su an' },
+	{ href: localizePath(lang, '/about'), label: t('nav.about'), key: 'about hakkımda hakkimda' },
+	{ href: localizePath(lang, '/colophon'), label: t('nav.colophon'), key: 'colophon künye kunye' },
+];
+
+const accents = ['indigo', 'violet', 'sky', 'emerald', 'rose'] as const;
+const accentDot: Record<string, string> = {
+	indigo: 'bg-indigo-500',
+	violet: 'bg-violet-500',
+	sky: 'bg-sky-500',
+	emerald: 'bg-emerald-500',
+	rose: 'bg-rose-500',
+};
+
+const itemCls =
+	'cmdk-item flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-slate-700 dark:text-slate-300 aria-selected:bg-brand-500/10 aria-selected:text-brand-700 dark:aria-selected:text-brand-300';
+const labelCls = 'cmdk-label px-3 pt-3 pb-1 text-xs font-semibold uppercase tracking-wide text-slate-400';
+---
+
+<div id="cmdk-modal" class="fixed inset-0 z-[75] hidden items-start justify-center p-4 pt-[12vh]">
+	<div id="cmdk-backdrop" class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"></div>
+	<div class="surface relative w-full max-w-lg overflow-hidden shadow-2xl">
+		<div class="flex items-center gap-2 border-b border-slate-200/70 px-4 dark:border-slate-800/70">
+			<svg class="size-4 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+				<circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path>
+			</svg>
+			<input
+				id="cmdk-input"
+				type="text"
+				autocomplete="off"
+				spellcheck="false"
+				placeholder={t('cmd.placeholder')}
+				class="w-full bg-transparent py-3.5 text-sm text-slate-900 outline-none placeholder:text-slate-400 dark:text-white"
+			/>
+			<kbd class="kbd hidden sm:inline">Esc</kbd>
+		</div>
+
+		<div id="cmdk-list" class="max-h-[52vh] overflow-y-auto p-2">
+			<div class="cmdk-group">
+				<p class={labelCls}>{t('cmd.nav')}</p>
+				{
+					navItems.map((item) => (
+						<a href={item.href} class={itemCls} data-cmd="nav" data-text={`${item.label} ${item.key}`}>
+							<svg class="size-4 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+								<path d="M5 12h14M13 6l6 6-6 6" />
+							</svg>
+							<span>{item.label}</span>
+						</a>
+					))
+				}
+			</div>
+
+			<div class="cmdk-group">
+				<p class={labelCls}>{t('cmd.actions')}</p>
+				<button type="button" class={itemCls} data-cmd="search" data-text={`${t('cmd.searchPosts')} search ara`}>
+					<svg class="size-4 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+						<circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path>
+					</svg>
+					<span>{t('cmd.searchPosts')}</span>
+				</button>
+				<button type="button" class={itemCls} data-cmd="theme" data-text={`${t('cmd.toggleTheme')} theme tema dark light`}>
+					<svg class="size-4 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M2 12h2M20 12h2" />
+					</svg>
+					<span>{t('cmd.toggleTheme')}</span>
+				</button>
+				<button type="button" class={itemCls} data-cmd="copy" data-text={`${t('cmd.copyUrl')} copy link kopyala`}>
+					<svg class="size-4 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15V5a2 2 0 0 1 2-2h10" />
+					</svg>
+					<span>{t('cmd.copyUrl')}</span>
+				</button>
+				<div class="cmdk-item flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-700 dark:text-slate-300" data-text="accent vurgu rengi color">
+					<svg class="size-4 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<circle cx="13.5" cy="6.5" r=".5" fill="currentColor" /><circle cx="17.5" cy="10.5" r=".5" fill="currentColor" /><circle cx="8.5" cy="7.5" r=".5" fill="currentColor" /><circle cx="6.5" cy="12.5" r=".5" fill="currentColor" /><path d="M12 2a10 10 0 0 0 0 20c.94 0 1.7-.76 1.7-1.7 0-.44-.17-.84-.44-1.14-.27-.3-.44-.7-.44-1.14 0-.94.76-1.7 1.7-1.7H16a6 6 0 0 0 6-6 10 10 0 0 0-10-10Z" />
+					</svg>
+					<span class="mr-1">{t('cmd.accent')}</span>
+					<span class="flex gap-1.5">
+						{
+							accents.map((a) => (
+								<button
+									type="button"
+									class={`cmdk-accent size-5 rounded-full ${accentDot[a]} ring-2 ring-transparent transition hover:scale-110`}
+									data-accent={a}
+									aria-label={a}
+								/>
+							))
+						}
+					</span>
+				</div>
+			</div>
+
+			<p id="cmdk-empty" class="hidden px-3 py-6 text-center text-sm text-slate-400">{t('cmd.empty')}</p>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,161 @@
+---
+// Tüm sayfaların <head> kısmına dahil edilir.
+import '../styles/global.css';
+import type { ImageMetadata } from 'astro';
+import { SEO } from 'astro-seo';
+import { GoogleAnalytics } from 'astro-google-analytics';
+import FallbackImage from '../assets/blog-placeholder-1.jpg';
+import { ClientRouter } from 'astro:transitions';
+import LoadingIndicator from 'astro-loading-indicator/component';
+import { SITE_TITLE, GA_MEASUREMENT_ID, GOATCOUNTER_CODE, AUTHOR_NAME, VERIFICATION, GISCUS } from '../consts';
+import { webmentionEndpoint } from '../lib/webmentions';
+import { type Locale, defaultLocale, locales, pathForLocale } from '../i18n/ui';
+
+interface Props {
+	title: string;
+	description: string;
+	image?: ImageMetadata;
+	ogImage?: string;
+	lang?: Locale;
+	type?: 'website' | 'article';
+	publishedTime?: Date;
+	modifiedTime?: Date;
+	alternates?: Partial<Record<Locale, string>>;
+	jsonLd?: object | object[];
+}
+
+const {
+	title,
+	description,
+	image = FallbackImage,
+	ogImage,
+	lang = defaultLocale,
+	type = 'website',
+	publishedTime,
+	modifiedTime,
+	alternates,
+	jsonLd,
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImageURL = new URL(ogImage ?? image.src, Astro.site).href;
+const ogLocale = lang === 'en' ? 'en_US' : 'tr_TR';
+const hreflang: Record<Locale, string> = { tr: 'tr-TR', en: 'en-US' };
+
+const toAbs = (p: string) => (p.startsWith('http') ? p : new URL(p, Astro.site).href);
+const altEntries = (alternates
+	? (Object.entries(alternates) as [Locale, string][])
+	: locales.map((l) => [l, pathForLocale(Astro.url.pathname, l)] as [Locale, string])
+).filter(([, v]) => Boolean(v));
+const xDefault = altEntries.find(([l]) => l === defaultLocale)?.[1] ?? altEntries[0]?.[1];
+
+const articleMeta =
+	type === 'article'
+		? {
+				publishedTime: publishedTime?.toISOString(),
+				modifiedTime: (modifiedTime ?? publishedTime)?.toISOString(),
+				authors: [AUTHOR_NAME],
+			}
+		: undefined;
+
+const schemas = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+const serialize = (obj: object) => JSON.stringify(obj).replace(/</g, '\\u003c');
+
+const wmEndpoint = webmentionEndpoint();
+
+// PWA service worker kayıt scripti (string olarak; set:html ile basılır).
+const swRegister = `if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){})})}`;
+---
+
+<!-- Tema (flash önleyici): sayfa boyanmadan önce data-theme'i ayarla -->
+<script is:inline>
+	(function () {
+		try {
+			const saved = localStorage.getItem('theme');
+			const theme =
+				saved ||
+				(window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+			document.documentElement.dataset.theme = theme;
+			const accent = localStorage.getItem('accent');
+			if (accent) document.documentElement.dataset.accent = accent;
+		} catch (e) {
+			document.documentElement.dataset.theme = 'dark';
+		}
+	})();
+</script>
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="theme-color" content="#0f172a" />
+<meta name="author" content={AUTHOR_NAME} />
+
+<!-- Arama motoru site doğrulama (config doluysa) -->
+{VERIFICATION.google && <meta name="google-site-verification" content={VERIFICATION.google} />}
+{VERIFICATION.bing && <meta name="msvalidate.01" content={VERIFICATION.bing} />}
+
+<!-- Bağlantı ısıtma (yorumlar yüklenecekse) -->
+{GISCUS.repo && <link rel="preconnect" href="https://giscus.app" crossorigin />}
+<link rel="dns-prefetch" href="https://i.ytimg.com" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" href="/favicon.svg" />
+<link rel="manifest" href="/manifest.webmanifest" />
+<link rel="sitemap" href="/sitemap-index.xml" />
+
+<!-- Webmention.io (WEBMENTION.domain doluysa) -->
+{wmEndpoint && <link rel="webmention" href={wmEndpoint} />}
+<link
+	rel="alternate"
+	type="application/rss+xml"
+	title={SITE_TITLE}
+	href={new URL(lang === 'en' ? 'en/rss.xml' : 'rss.xml', Astro.site)}
+/>
+<link
+	rel="alternate"
+	type="application/feed+json"
+	title={SITE_TITLE}
+	href={new URL(lang === 'en' ? 'en/feed.json' : 'feed.json', Astro.site)}
+/>
+<meta name="generator" content={Astro.generator} />
+
+<!-- View Transitions (akıcı sayfa geçişleri) + üst ilerleme çubuğu + merkezi istemci scripti -->
+<ClientRouter />
+<LoadingIndicator color="#6366f1" height="3px" />
+<script>
+	import '../scripts/client.ts';
+</script>
+
+<!-- hreflang (çok dilli SEO) -->
+{altEntries.map(([l, p]) => <link rel="alternate" hreflang={hreflang[l]} href={toAbs(p)} />)}
+{xDefault && <link rel="alternate" hreflang="x-default" href={toAbs(xDefault)} />}
+
+<SEO
+	title={title}
+	description={description}
+	canonical={canonicalURL.href}
+	openGraph={{
+		basic: { title, type, image: ogImageURL },
+		optional: { description, siteName: SITE_TITLE, locale: ogLocale },
+		...(articleMeta ? { article: articleMeta } : {}),
+	}}
+	twitter={{ card: 'summary_large_image', title, description, image: ogImageURL }}
+/>
+
+{schemas.map((s) => <script type="application/ld+json" set:html={serialize(s)} />)}
+
+{GA_MEASUREMENT_ID && import.meta.env.PROD && <GoogleAnalytics id={GA_MEASUREMENT_ID} />}
+
+<!-- Gizlilik dostu analitik (GoatCounter) — yalnızca production -->
+{
+	GOATCOUNTER_CODE && import.meta.env.PROD && (
+		<script
+			is:inline
+			data-goatcounter={`https://${GOATCOUNTER_CODE}.goatcounter.com/count`}
+			async
+			src="//gc.zgo.at/count.js"
+		/>
+	)
+}
+
+<!-- PWA: service worker kaydı (çevrimdışı okuma) — yalnızca production -->
+{import.meta.env.PROD && <script is:inline set:html={swRegister} />}

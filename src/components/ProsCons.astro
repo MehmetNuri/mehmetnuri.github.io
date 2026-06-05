@@ -1,0 +1,49 @@
+---
+// Artılar / eksiler karşılaştırması (MDX içinde):
+//   <ProsCons
+//     pros={['Hızlı', 'Basit kurulum']}
+//     cons={['Sınırlı eklenti', 'Topluluk küçük']}
+//   />
+interface Props {
+	pros?: string[];
+	cons?: string[];
+	prosTitle?: string;
+	consTitle?: string;
+}
+const { pros = [], cons = [], prosTitle = 'Artılar', consTitle = 'Eksiler' } = Astro.props;
+---
+
+<div class="not-prose my-6 grid gap-4 sm:grid-cols-2">
+	<div class="rounded-xl border border-emerald-500/30 bg-emerald-50 p-5 dark:bg-emerald-500/10">
+		<h4 class="mb-3 flex items-center gap-2 font-semibold text-emerald-700 dark:text-emerald-400">
+			<svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+				<path d="M20 6 9 17l-5-5"></path>
+			</svg>
+			{prosTitle}
+		</h4>
+		<ul class="space-y-2 text-sm text-slate-700 dark:text-slate-300">
+			{pros.map((p) => (
+				<li class="flex gap-2">
+					<span class="mt-1 text-emerald-500">+</span>
+					<span>{p}</span>
+				</li>
+			))}
+		</ul>
+	</div>
+	<div class="rounded-xl border border-red-500/30 bg-red-50 p-5 dark:bg-red-500/10">
+		<h4 class="mb-3 flex items-center gap-2 font-semibold text-red-700 dark:text-red-400">
+			<svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+				<path d="M18 6 6 18M6 6l12 12"></path>
+			</svg>
+			{consTitle}
+		</h4>
+		<ul class="space-y-2 text-sm text-slate-700 dark:text-slate-300">
+			{cons.map((c) => (
+				<li class="flex gap-2">
+					<span class="mt-1 text-red-500">−</span>
+					<span>{c}</span>
+				</li>
+			))}
+		</ul>
+	</div>
+</div>

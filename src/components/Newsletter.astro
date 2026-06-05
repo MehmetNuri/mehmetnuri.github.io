@@ -1,0 +1,48 @@
+---
+// E-posta bülteni abonelik formu (Buttondown). NEWSLETTER.username boşsa
+// hiçbir şey render etmez (özellik kapalı).
+import { NEWSLETTER } from '../consts';
+import { type Locale, useTranslations } from '../i18n/ui';
+
+interface Props {
+	lang: Locale;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const enabled = Boolean(NEWSLETTER.username);
+const action = `https://buttondown.com/api/emails/embed-subscribe/${NEWSLETTER.username}`;
+---
+
+{
+	enabled && (
+		<section class="surface overflow-hidden p-6 sm:p-8">
+			<h2 class="text-xl font-bold text-slate-900 dark:text-white">{t('newsletter.title')}</h2>
+			<p class="mt-1.5 text-sm text-slate-600 dark:text-slate-400">{t('newsletter.desc')}</p>
+			<form
+				action={action}
+				method="post"
+				target="_blank"
+				class="mt-4 flex flex-col gap-2 sm:flex-row"
+			>
+				<label class="sr-only" for="bd-email">
+					{t('newsletter.placeholder')}
+				</label>
+				<input
+					id="bd-email"
+					type="email"
+					name="email"
+					required
+					placeholder={t('newsletter.placeholder')}
+					class="w-full rounded-lg border border-slate-300 bg-white/70 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 dark:border-slate-700 dark:bg-slate-900/60 dark:text-white"
+				/>
+				<button
+					type="submit"
+					class="shrink-0 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700"
+				>
+					{t('newsletter.button')}
+				</button>
+			</form>
+			<p class="mt-2 text-xs text-slate-400">{t('newsletter.privacy')}</p>
+		</section>
+	)
+}

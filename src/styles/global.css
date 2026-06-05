@@ -1,0 +1,269 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
+@import './starwind.css';
+@plugin '@tailwindcss/typography';
+
+/* Koyu modu html[data-theme="dark"] üzerinden yönet (manuel toggle) */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* Glassmorphic yüzey + hover (modern kart görünümü) */
+@utility surface {
+	@apply rounded-2xl border border-slate-200/70 bg-white/70 backdrop-blur-xl;
+	@apply dark:border-white/10 dark:bg-slate-900/50;
+}
+@utility card-hover {
+	@apply transition duration-300 hover:-translate-y-1;
+	@apply hover:border-brand-500/40 hover:shadow-xl hover:shadow-brand-500/10;
+}
+
+/* Kartlarda fare-takipli spotlight (görsel şölen) */
+.card-hover {
+	position: relative;
+}
+.card-hover::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	pointer-events: none;
+	background: radial-gradient(
+		220px circle at var(--mx, 50%) var(--my, 50%),
+		color-mix(in oklab, var(--color-brand-500) 13%, transparent),
+		transparent 65%
+	);
+	opacity: 0;
+	transition: opacity 0.25s ease;
+}
+.card-hover:hover::after {
+	opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+	.card-hover::after {
+		display: none;
+	}
+}
+
+@theme {
+	--font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+		'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+	--font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+
+	/* Marka / aksan rengi */
+	--color-brand-50: #eef2ff;
+	--color-brand-100: #e0e7ff;
+	--color-brand-200: #c7d2fe;
+	--color-brand-300: #a5b4fc;
+	--color-brand-400: #818cf8;
+	--color-brand-500: #6366f1;
+	--color-brand-600: #4f46e5;
+	--color-brand-700: #4338ca;
+}
+
+@layer base {
+	html {
+		scroll-behavior: smooth;
+		-webkit-text-size-adjust: 100%;
+	}
+	html[data-theme='light'] {
+		color-scheme: light;
+	}
+	html[data-theme='dark'] {
+		color-scheme: dark;
+	}
+
+	html[data-theme='light'] {
+		--grid-line: rgba(15, 23, 42, 0.045);
+	}
+	html[data-theme='dark'] {
+		--grid-line: rgba(148, 163, 184, 0.06);
+	}
+
+	/* Aksan rengi varyantları (data-accent ile canlı değişir; varsayılan indigo) */
+	html[data-accent='violet'] {
+		--color-brand-50: #f5f3ff;
+		--color-brand-100: #ede9fe;
+		--color-brand-200: #ddd6fe;
+		--color-brand-300: #c4b5fd;
+		--color-brand-400: #a78bfa;
+		--color-brand-500: #8b5cf6;
+		--color-brand-600: #7c3aed;
+		--color-brand-700: #6d28d9;
+	}
+	html[data-accent='sky'] {
+		--color-brand-50: #f0f9ff;
+		--color-brand-100: #e0f2fe;
+		--color-brand-200: #bae6fd;
+		--color-brand-300: #7dd3fc;
+		--color-brand-400: #38bdf8;
+		--color-brand-500: #0ea5e9;
+		--color-brand-600: #0284c7;
+		--color-brand-700: #0369a1;
+	}
+	html[data-accent='emerald'] {
+		--color-brand-50: #ecfdf5;
+		--color-brand-100: #d1fae5;
+		--color-brand-200: #a7f3d0;
+		--color-brand-300: #6ee7b7;
+		--color-brand-400: #34d399;
+		--color-brand-500: #10b981;
+		--color-brand-600: #059669;
+		--color-brand-700: #047857;
+	}
+	html[data-accent='rose'] {
+		--color-brand-50: #fff1f2;
+		--color-brand-100: #ffe4e6;
+		--color-brand-200: #fecdd3;
+		--color-brand-300: #fda4af;
+		--color-brand-400: #fb7185;
+		--color-brand-500: #f43f5e;
+		--color-brand-600: #e11d48;
+		--color-brand-700: #be123c;
+	}
+
+	/* Pagefind arama kutusu teması (sitewide) */
+	:root {
+		--pagefind-ui-font: var(--font-sans);
+		--pagefind-ui-primary: var(--color-brand-600);
+		--pagefind-ui-border-radius: 0.85rem;
+		--pagefind-ui-border-width: 1px;
+	}
+	html[data-theme='dark'] {
+		--pagefind-ui-primary: #818cf8;
+		--pagefind-ui-text: #e2e8f0;
+		--pagefind-ui-background: #0f172a;
+		--pagefind-ui-border: #1e293b;
+		--pagefind-ui-tag: #1e293b;
+	}
+
+	body {
+		@apply min-h-screen flex flex-col font-sans antialiased;
+		@apply bg-white text-slate-700 dark:bg-slate-950 dark:text-slate-300;
+	}
+
+	/* Modern arka plan: ince ızgara + yumuşak gradyan parıltılar (sabit) */
+	body {
+		background-image:
+			radial-gradient(52rem 52rem at 90% -12%, color-mix(in oklab, var(--color-brand-500) 16%, transparent), transparent 55%),
+			radial-gradient(46rem 46rem at -12% 4%, color-mix(in oklab, #22d3ee 13%, transparent), transparent 50%),
+			linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+			linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+		background-size:
+			100% 100%,
+			100% 100%,
+			44px 44px,
+			44px 44px;
+		background-repeat: no-repeat, no-repeat, repeat, repeat;
+		background-attachment: fixed;
+	}
+
+	::selection {
+		@apply bg-brand-500/25;
+	}
+
+	:focus-visible {
+		@apply outline-2 outline-offset-2 outline-brand-500;
+	}
+}
+
+/* Yazı içeriği (Tailwind Typography) ince ayarları */
+@layer components {
+	/* Satır içi kod: typography'nin backtick'lerini kaldır */
+	.prose :where(code):not(pre code)::before,
+	.prose :where(code):not(pre code)::after {
+		content: none !important;
+	}
+	.prose :where(code):not(pre code) {
+		@apply rounded-md border border-slate-200 bg-slate-100 px-1.5 py-0.5 text-[0.85em] font-medium text-slate-800;
+		@apply dark:border-slate-800 dark:bg-slate-800/60 dark:text-slate-200;
+	}
+
+	/* Başlık çapa bağlantıları (rehype-autolink-headings, wrap) */
+	.prose :where(h2, h3, h4) > a {
+		@apply relative text-inherit no-underline;
+		font: inherit;
+	}
+	.prose :where(h2, h3, h4) > a:hover {
+		@apply text-brand-600 dark:text-brand-400;
+	}
+	.prose :where(h2, h3, h4) > a::before {
+		content: '#';
+		position: absolute;
+		left: -0.85em;
+		font-weight: 600;
+		color: var(--color-brand-500);
+		opacity: 0;
+		transition: opacity 0.15s ease;
+	}
+	.prose :where(h2, h3, h4):hover > a::before {
+		opacity: 0.55;
+	}
+
+	/* Expressive Code blokları typography ile çakışmasın */
+	.prose .expressive-code {
+		@apply my-6;
+	}
+}
+
+/* Hareket: scroll-reveal + animasyonlu gradyan (azaltılmış hareket tercihine saygılı) */
+@media (prefers-reduced-motion: no-preference) {
+	[data-reveal] {
+		opacity: 0;
+		transform: translateY(18px);
+		transition:
+			opacity 0.6s ease,
+			transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+	}
+	[data-reveal].is-visible {
+		opacity: 1;
+		transform: none;
+	}
+
+	.gradient-animate {
+		background-size: 220% auto;
+		animation: gradient-shift 6s ease-in-out infinite;
+	}
+	@keyframes gradient-shift {
+		0%,
+		100% {
+			background-position: 0% 50%;
+		}
+		50% {
+			background-position: 100% 50%;
+		}
+	}
+}
+
+/* Yazdırma: gereksiz arayüzü gizle, içeriği sadeleştir */
+@media print {
+	header,
+	footer,
+	aside,
+	#back-to-top,
+	#search-modal,
+	#help-modal,
+	#cmdk-modal,
+	#reading-progress,
+	.no-print,
+	#giscus-container {
+		display: none !important;
+	}
+	body {
+		background: #fff !important;
+		color: #000 !important;
+	}
+	main {
+		max-width: none !important;
+		padding: 0 !important;
+	}
+	.prose {
+		max-width: none !important;
+	}
+	.prose a {
+		text-decoration: underline;
+	}
+	.surface {
+		border: 1px solid #ddd !important;
+		background: #fff !important;
+		backdrop-filter: none !important;
+	}
+}

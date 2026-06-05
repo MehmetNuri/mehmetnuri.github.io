@@ -1,0 +1,19 @@
+{
+	"name": "Mehmet Nuri Öztürk",
+	"short_name": "Mehmet Nuri",
+	"description": "Yazılım, sistem tasarımı ve öğrendiklerim üzerine kişisel blog.",
+	"start_url": "/",
+	"scope": "/",
+	"display": "standalone",
+	"background_color": "#0f172a",
+	"theme_color": "#0f172a",
+	"lang": "tr",
+	"icons": [
+		{
+			"src": "/favicon.svg",
+			"sizes": "any",
+			"type": "image/svg+xml",
+			"purpose": "any maskable"
+		}
+	]
+}

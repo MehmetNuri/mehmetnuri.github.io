@@ -1,0 +1,164 @@
+---
+import Base from '../../layouts/Base.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+import { Badge } from '../../components/starwind/badge';
+import { getPostsByLocale, postSlug, readingMinutes } from '../../lib/utils';
+import { collectionPageSchema, breadcrumbSchema } from '../../lib/seo';
+import { SITE_TITLE } from '../../consts';
+import {
+	locales,
+	type Locale,
+	defaultLocale,
+	localizePath,
+	useTranslations,
+	formatReadingTime,
+} from '../../i18n/ui';
+
+export function getStaticPaths() {
+	return locales.map((lang) => ({
+		params: { locale: lang === defaultLocale ? undefined : lang },
+		props: { lang },
+	}));
+}
+
+const { lang } = Astro.props as { lang: Locale };
+const t = useTranslations(lang);
+const en = lang === 'en';
+
+// Java ile ilgili yazılar: etiket veya kategori "java" geçenler.
+const all = await getPostsByLocale(lang);
+const javaPosts = all.filter((p) => {
+	const tags = (p.data.tags ?? []).map((x) => x.toLowerCase());
+	const cat = (p.data.category ?? '').toLowerCase();
+	return tags.includes('java') || cat.includes('java') || tags.some((x) => x.startsWith('spring'));
+});
+
+const title = en ? 'Java — guides, notes & deep dives' : 'Java — rehberler, notlar ve derinlemesine yazılar';
+const description = en
+	? 'Everything I write about Java: the language, the JVM, Spring, performance, system design and real-world lessons. A growing, curated hub.'
+	: 'Java üzerine yazdığım her şey: dil, JVM, Spring, performans, sistem tasarımı ve sahadan dersler. Sürekli büyüyen, derlenmiş bir merkez.';
+
+// Alt konu başlıkları (topical authority sinyali + iç gezinme).
+const subtopics = en
+	? [
+			{ name: 'Language & JVM', desc: 'Core language, memory, the JVM and how it runs.' },
+			{ name: 'Spring & Spring Boot', desc: 'Building real applications and APIs.' },
+			{ name: 'Concurrency', desc: 'Threads, executors and modern concurrency.' },
+			{ name: 'Performance', desc: 'Profiling, GC tuning and throughput.' },
+			{ name: 'System Design', desc: 'Designing Java systems that scale.' },
+			{ name: 'Testing & Tooling', desc: 'JUnit, build tools and the ecosystem.' },
+		]
+	: [
+			{ name: 'Dil & JVM', desc: 'Çekirdek dil, bellek ve JVM’in çalışma biçimi.' },
+			{ name: 'Spring & Spring Boot', desc: 'Gerçek uygulamalar ve API’ler kurmak.' },
+			{ name: 'Eşzamanlılık', desc: 'Thread’ler, executor’lar ve modern concurrency.' },
+			{ name: 'Performans', desc: 'Profilleme, GC ayarı ve verim.' },
+			{ name: 'Sistem Tasarımı', desc: 'Ölçeklenen Java sistemleri tasarlamak.' },
+			{ name: 'Test & Araçlar', desc: 'JUnit, build araçları ve ekosistem.' },
+		];
+
+const siteUrl = Astro.site!.href;
+const pageUrl = new URL(localizePath(lang, '/java'), Astro.site).href;
+const jsonLd = [
+	collectionPageSchema({ url: pageUrl, name: 'Java', description, lang: en ? 'en-US' : 'tr-TR', siteUrl }),
+	breadcrumbSchema([
+		{ name: t('nav.home'), url: new URL(localizePath(lang, '/'), Astro.site).href },
+		{ name: 'Java', url: pageUrl },
+	]),
+];
+
+const langUrls = Object.fromEntries(
+	locales.map((l) => [l, localizePath(l, '/java')]),
+) as Partial<Record<Locale, string>>;
+---
+
+<Base
+	title={`${title} — ${SITE_TITLE}`}
+	description={description}
+	lang={lang}
+	langUrls={langUrls}
+	jsonLd={jsonLd}
+>
+	<main class="mx-auto w-full max-w-4xl flex-1 px-4 py-16 sm:px-6">
+		<header class="mb-12" data-reveal>
+			<div class="flex items-center gap-3">
+				<span class="grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 text-white shadow-lg">
+					<svg class="size-7" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+						<path d="M8.85 18.6s-.97.57.69.76c2 .23 3.03.2 5.24-.22 0 0 .59.37 1.4.69-4.95 2.12-11.2-.12-7.33-1.23M8.25 15.85s-1.09.8.57.97c2.15.22 3.84.24 6.78-.33 0 0 .41.42 1.05.65-5.98 1.75-12.64.14-8.4-1.29M13.3 11.2c1.22 1.4-.32 2.66-.32 2.66s3.1-1.6 1.68-3.6c-1.33-1.87-2.34-2.8 3.16-5.99 0 0-8.66 2.16-4.52 6.93M19.33 20.5s.72.59-.79.99c-2.86.86-11.9 1.12-14.42.03-.9-.39.79-.94 1.32-1.05.55-.12.87-.1.87-.1-1-.71-6.49 1.39-2.79 1.99 10.1 1.64 18.41-.74 15.8-1.86M9.31 13s-4.6 1.09-1.63 1.49c1.26.17 3.76.13 6.09-.06 1.9-.16 3.81-.5 3.81-.5s-.67.29-1.16.62c-4.67 1.23-13.7.66-11.1-.6 2.2-1.06 4-.95 4-.95M17.16 17.37c4.75-2.47 2.55-4.84 1.02-4.52-.38.08-.54.15-.54.15s.14-.21.4-.3c2.92-1.03 5.16 3.03-.98 4.81 0 0 .07-.07.1-.14M14 1s2.63 2.63-2.5 6.68c-4.11 3.25-.94 5.1 0 7.22-2.4-2.17-4.16-4.07-2.98-5.85C10.25 6.42 15.06 5.15 14 1M9.78 22.93c4.56.3 11.57-.16 11.73-2.32 0 0-.32.82-3.77 1.47-3.9.73-8.7.65-11.54.18 0 0 .58.48 3.58.67"></path>
+					</svg>
+				</span>
+				<h1 class="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">Java</h1>
+			</div>
+			<p class="mt-4 max-w-2xl text-lg text-pretty text-slate-600 dark:text-slate-400">{description}</p>
+		</header>
+
+		<!-- Alt konular -->
+		<section class="mb-14" data-reveal>
+			<h2 class="mb-5 text-xl font-semibold text-slate-900 dark:text-white">
+				{en ? 'Topics' : 'Konu başlıkları'}
+			</h2>
+			<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+				{
+					subtopics.map((s) => (
+						<div class="surface card-hover p-5">
+							<h3 class="font-semibold text-slate-900 dark:text-white">{s.name}</h3>
+							<p class="mt-1 text-sm text-slate-600 dark:text-slate-400">{s.desc}</p>
+						</div>
+					))
+				}
+			</div>
+		</section>
+
+		<!-- Java yazıları -->
+		<section data-reveal>
+			<h2 class="mb-5 text-xl font-semibold text-slate-900 dark:text-white">
+				{en ? 'All Java posts' : 'Tüm Java yazıları'}
+			</h2>
+			{
+				javaPosts.length === 0 ? (
+					<div class="surface p-6 text-slate-600 dark:text-slate-400">
+						{en
+							? 'The first Java deep dives are on the way — check back soon, or read the blog in the meantime.'
+							: 'İlk Java yazıları yolda — yakında tekrar uğra ya da bu arada bloga göz at.'}
+						<a
+							href={localizePath(lang, '/blog')}
+							class="ml-1 text-brand-600 hover:underline dark:text-brand-400"
+						>
+							{t('nav.blog')} →
+						</a>
+					</div>
+				) : (
+					<ul class="space-y-3">
+						{javaPosts.map((p) => (
+							<li class="surface card-hover p-5">
+								<a href={localizePath(lang, `/blog/${postSlug(p)}`)} class="group block">
+									<div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+										<FormattedDate date={p.data.pubDate} lang={lang} />
+										<span>·</span>
+										<span>{formatReadingTime(readingMinutes(p.body), lang)}</span>
+										{p.data.category && <span>· {p.data.category}</span>}
+									</div>
+									<h3 class="mt-1.5 font-semibold text-slate-900 transition group-hover:text-brand-600 dark:text-white dark:group-hover:text-brand-400">
+										{p.data.title}
+									</h3>
+									{p.data.description && (
+										<p class="mt-1 text-sm text-slate-600 dark:text-slate-400">{p.data.description}</p>
+									)}
+									{p.data.tags.length > 0 && (
+										<div class="mt-2 flex flex-wrap gap-1.5">
+											{p.data.tags.slice(0, 4).map((tag) => (
+												<Badge variant="secondary" size="sm">
+													#{tag}
+												</Badge>
+											))}
+										</div>
+									)}
+								</a>
+							</li>
+						))}
+					</ul>
+				)
+			}
+		</section>
+	</main>
+</Base>

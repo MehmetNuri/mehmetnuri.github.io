@@ -1,0 +1,79 @@
+---
+import { getCollection, render } from 'astro:content';
+import BlogPost from '../../../layouts/BlogPost.astro';
+import {
+	postSlug,
+	getTranslations,
+	getPostsByLocale,
+	getRelatedPosts,
+	getSeriesPosts,
+	readingMinutes,
+} from '../../../lib/utils';
+import { type Locale, defaultLocale, localizePath } from '../../../i18n/ui';
+
+export async function getStaticPaths() {
+	const posts = await getCollection('blog');
+	return posts.map((post) => ({
+		params: {
+			locale: post.data.locale === defaultLocale ? undefined : post.data.locale,
+			slug: postSlug(post),
+		},
+		props: { post },
+	}));
+}
+
+const { post } = Astro.props;
+const lang = post.data.locale as Locale;
+const { Content, headings, remarkPluginFrontmatter } = await render(post);
+const wordCount = (post.body ?? '').trim().split(/\s+/).filter(Boolean).length;
+
+const translations = await getTranslations(post);
+const langUrls = Object.fromEntries(
+	Object.entries(translations).map(([l, slug]) => [l, localizePath(l as Locale, `/blog/${slug}`)]),
+) as Partial<Record<Locale, string>>;
+
+// Önceki / sonraki yazı (aynı dilde, tarihe göre)
+const all = await getPostsByLocale(lang);
+const idx = all.findIndex((p) => p.id === post.id);
+const toLink = (p) => (p ? { url: localizePath(lang, `/blog/${postSlug(p)}`), title: p.data.title } : null);
+const prevPost = idx > 0 ? toLink(all[idx - 1]) : null;
+const nextPost = idx >= 0 && idx < all.length - 1 ? toLink(all[idx + 1]) : null;
+
+const relatedPosts = getRelatedPosts(post, all, 3).map((p) => ({
+	url: localizePath(lang, `/blog/${postSlug(p)}`),
+	title: p.data.title,
+	date: p.data.pubDate,
+	minutes: readingMinutes(p.body),
+}));
+
+const seriesList = getSeriesPosts(post, all);
+const seriesInfo =
+	seriesList.length > 1
+		? {
+				name: post.data.series!,
+				items: seriesList.map((p, i) => ({
+					url: localizePath(lang, `/blog/${postSlug(p)}`),
+					title: p.data.title,
+					isCurrent: p.id === post.id,
+					num: i + 1,
+				})),
+			}
+		: null;
+---
+
+<BlogPost
+	{...post.data}
+	slug={postSlug(post)}
+	ogId={post.id}
+	minutesRead={remarkPluginFrontmatter.minutesRead}
+	wordCount={wordCount}
+	lang={lang}
+	langUrls={langUrls}
+	headings={headings}
+	prevPost={prevPost}
+	nextPost={nextPost}
+	relatedPosts={relatedPosts}
+	seriesInfo={seriesInfo}
+>
+	<Content />
+</BlogPost>

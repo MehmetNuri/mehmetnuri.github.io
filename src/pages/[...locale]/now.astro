@@ -1,0 +1,99 @@
+---
+import Base from '../../layouts/Base.astro';
+import { SITE_TITLE } from '../../consts';
+import { locales, type Locale, defaultLocale, useTranslations } from '../../i18n/ui';
+
+export function getStaticPaths() {
+	return locales.map((lang) => ({
+		params: { locale: lang === defaultLocale ? undefined : lang },
+		props: { lang },
+	}));
+}
+
+const { lang } = Astro.props as { lang: Locale };
+const t = useTranslations(lang);
+const en = lang === 'en';
+
+// Bu sayfayı güncellediğinde tarihi de değiştir.
+const updated = new Date('2026-06-05');
+const updatedFmt = updated.toLocaleDateString(en ? 'en-US' : 'tr-TR', {
+	year: 'numeric',
+	month: 'long',
+	day: 'numeric',
+});
+
+// İçeriği buradan düzenle — "şu sıralar" odakların.
+const blocks = en
+	? [
+			{
+				title: 'Building',
+				body: 'Focused on scalable web systems and refining this site — new pages, content components and small polish.',
+			},
+			{
+				title: 'Learning',
+				body: 'Going deeper into system design and exploring how large services stay reliable under load.',
+			},
+			{
+				title: 'Writing',
+				body: 'Turning what I learn into posts and short notes here, in two languages.',
+			},
+		]
+	: [
+			{
+				title: 'Yapıyorum',
+				body: 'Ölçeklenebilir web sistemlerine ve bu siteyi geliştirmeye odaklıyım — yeni sayfalar, içerik bileşenleri ve küçük rötuşlar.',
+			},
+			{
+				title: 'Öğreniyorum',
+				body: 'Sistem tasarımında derinleşiyor, büyük servislerin yük altında nasıl ayakta kaldığını araştırıyorum.',
+			},
+			{
+				title: 'Yazıyorum',
+				body: 'Öğrendiklerimi burada yazılara ve kısa notlara dönüştürüyorum — iki dilde.',
+			},
+		];
+---
+
+<Base title={`${t('now.title')} — ${SITE_TITLE}`} description={t('now.subtitle')} lang={lang}>
+	<main class="mx-auto w-full max-w-2xl flex-1 px-4 py-16 sm:px-6">
+		<header class="mb-10" data-reveal>
+			<div class="flex items-center gap-2">
+				<span class="relative flex size-2.5">
+					<span class="absolute inline-flex size-full animate-ping rounded-full bg-brand-500 opacity-75"></span>
+					<span class="relative inline-flex size-2.5 rounded-full bg-brand-500"></span>
+				</span>
+				<h1 class="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">{t('now.title')}</h1>
+			</div>
+			<p class="mt-3 text-lg text-slate-600 dark:text-slate-400">{t('now.subtitle')}</p>
+			<p class="mt-2 text-sm text-slate-500 dark:text-slate-400">{t('now.updated')} {updatedFmt}</p>
+		</header>
+
+		<div class="space-y-5">
+			{
+				blocks.map((b) => (
+					<section class="surface p-6" data-reveal>
+						<h2 class="text-sm font-semibold uppercase tracking-wide text-brand-600 dark:text-brand-400">
+							{b.title}
+						</h2>
+						<p class="mt-2 text-pretty text-slate-700 dark:text-slate-300">{b.body}</p>
+					</section>
+				))
+			}
+		</div>
+
+		<p class="mt-10 text-sm text-slate-500 dark:text-slate-400" data-reveal>
+			{t('now.what')}{' '}
+			<a
+				href="https://nownownow.com/about"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="text-brand-600 hover:underline dark:text-brand-400">{t('now.nowpage')}</a
+			>{' '}{t('now.inspired')} <a
+				href="https://sive.rs/nowff"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="text-brand-600 hover:underline dark:text-brand-400">Derek Sivers</a
+			>.
+		</p>
+	</main>
+</Base>

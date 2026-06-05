@@ -1,0 +1,32 @@
+---
+// X (Twitter) gönderisi gömülümü (MDX içinde):
+//   <Tweet url="https://x.com/kullanici/status/123..." />
+// widgets.js yalnızca sayfada en az bir gönderi varsa yüklenir.
+interface Props {
+	url: string;
+}
+const { url } = Astro.props;
+---
+
+<div class="tweet-embed not-prose my-6 flex justify-center">
+	<blockquote class="twitter-tweet" data-dnt="true">
+		<a href={url}>{url}</a>
+	</blockquote>
+</div>
+
+<script>
+	document.addEventListener('astro:page-load', () => {
+		if (!document.querySelector('.twitter-tweet')) return;
+		const w = window as any;
+		if (w.twttr?.widgets) {
+			w.twttr.widgets.load();
+			return;
+		}
+		if (document.getElementById('twitter-wjs')) return;
+		const s = document.createElement('script');
+		s.id = 'twitter-wjs';
+		s.src = 'https://platform.twitter.com/widgets.js';
+		s.async = true;
+		document.body.appendChild(s);
+	});
+</script>

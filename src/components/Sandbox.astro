@@ -1,0 +1,41 @@
+---
+// Etkileşimli kod sandbox gömülümü (MDX içinde). Üç kullanım:
+//   <Sandbox stackblitz="edit/astro-basics" />
+//   <Sandbox codesandbox="new" />
+//   <Sandbox src="https://stackblitz.com/edit/xyz?embed=1&view=preview" />
+// Okur kodu tarayıcıda çalıştırıp deneyebilir.
+interface Props {
+	src?: string;
+	stackblitz?: string;
+	codesandbox?: string;
+	title?: string;
+	height?: number;
+}
+const { src, stackblitz, codesandbox, title = 'Sandbox', height = 480 } = Astro.props;
+
+let url = src;
+if (!url && stackblitz) {
+	url = `https://stackblitz.com/${stackblitz}?embed=1&view=preview&hideNavigation=1`;
+}
+if (!url && codesandbox) {
+	url = `https://codesandbox.io/embed/${codesandbox}?view=preview&hidenavigation=1`;
+}
+---
+
+{
+	url ? (
+		<iframe
+			src={url}
+			title={title}
+			loading="lazy"
+			class="not-prose my-6 w-full rounded-xl border border-slate-200 dark:border-slate-800"
+			style={`height:${height}px`}
+			allow="accelerometer; camera; encrypted-media; geolocation; gyroscope; microphone; midi"
+			sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+		/>
+	) : (
+		<p class="not-prose my-6 rounded-xl border border-amber-500/40 bg-amber-50 p-4 text-sm text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
+			Sandbox için <code>src</code>, <code>stackblitz</code> ya da <code>codesandbox</code> ver.
+		</p>
+	)
+}

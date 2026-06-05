@@ -1,0 +1,68 @@
+---
+import Base from '../../layouts/Base.astro';
+import { SITE_TITLE } from '../../consts';
+import { locales, type Locale, defaultLocale, useTranslations } from '../../i18n/ui';
+import { bookmarks } from '../../data/bookmarks';
+import { pick } from '../../data/uses';
+
+export function getStaticPaths() {
+	return locales.map((lang) => ({
+		params: { locale: lang === defaultLocale ? undefined : lang },
+		props: { lang },
+	}));
+}
+
+const { lang } = Astro.props as { lang: Locale };
+const t = useTranslations(lang);
+
+// Kategoriye göre grupla (aktif dildeki kategori adıyla).
+const groups = new Map<string, typeof bookmarks>();
+for (const b of bookmarks) {
+	const cat = pick(b.category, lang);
+	if (!groups.has(cat)) groups.set(cat, []);
+	groups.get(cat)!.push(b);
+}
+const hostOf = (url: string) => {
+	try {
+		return new URL(url).hostname.replace(/^www\./, '');
+	} catch {
+		return url;
+	}
+};
+---
+
+<Base title={`${t('bookmarks.title')} — ${SITE_TITLE}`} description={t('bookmarks.subtitle')} lang={lang}>
+	<main class="mx-auto w-full max-w-3xl flex-1 px-4 py-16 sm:px-6">
+		<header class="mb-10" data-reveal>
+			<h1 class="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">{t('bookmarks.title')}</h1>
+			<p class="mt-2 text-lg text-slate-600 dark:text-slate-400">{t('bookmarks.subtitle')}</p>
+		</header>
+
+		<div class="space-y-10">
+			{
+				[...groups.entries()].map(([cat, items]) => (
+					<section data-reveal>
+						<h2 class="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+							{cat}
+						</h2>
+						<ul class="grid gap-3">
+							{items.map((b) => (
+								<li class="surface card-hover p-4">
+									<a href={b.url} target="_blank" rel="noopener noreferrer" class="group block">
+										<div class="flex items-baseline justify-between gap-3">
+											<h3 class="font-semibold text-slate-900 transition group-hover:text-brand-600 dark:text-white dark:group-hover:text-brand-400">
+												{b.title}
+											</h3>
+											<span class="shrink-0 font-mono text-xs text-slate-400">{hostOf(b.url)}</span>
+										</div>
+										<p class="mt-1 text-sm text-slate-600 dark:text-slate-400">{pick(b.desc, lang)}</p>
+									</a>
+								</li>
+							))}
+						</ul>
+					</section>
+				))
+			}
+		</div>
+	</main>
+</Base>

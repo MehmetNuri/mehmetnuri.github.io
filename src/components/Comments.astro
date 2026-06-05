@@ -1,0 +1,27 @@
+---
+import { GISCUS } from '../consts';
+import { type Locale, useTranslations } from '../i18n/ui';
+
+interface Props {
+	lang: Locale;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const enabled = Boolean(GISCUS.repo && GISCUS.repoId && GISCUS.categoryId);
+---
+
+{
+	enabled && (
+		<section class="mt-12 border-t border-slate-200 pt-8 dark:border-slate-800">
+			<h2 class="mb-5 text-lg font-semibold text-slate-900 dark:text-white">{t('post.comments')}</h2>
+			<div
+				id="giscus-container"
+				data-giscus-repo={GISCUS.repo}
+				data-giscus-repo-id={GISCUS.repoId}
+				data-giscus-category={GISCUS.category}
+				data-giscus-category-id={GISCUS.categoryId}
+				data-giscus-lang={lang}
+			/>
+		</section>
+	)
+}

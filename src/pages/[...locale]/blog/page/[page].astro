@@ -1,0 +1,58 @@
+---
+import type { Page, GetStaticPaths } from 'astro';
+import Base from '../../../../layouts/Base.astro';
+import Sidebar from '../../../../components/Sidebar.astro';
+import PostList from '../../../../components/PostList.astro';
+import Pager from '../../../../components/Pager.astro';
+import { getPostsByLocale, type Post } from '../../../../lib/utils';
+import { SITE_TITLE } from '../../../../consts';
+import {
+	locales,
+	type Locale,
+	defaultLocale,
+	localizePath,
+	useTranslations,
+} from '../../../../i18n/ui';
+
+export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
+	const PAGE_SIZE = 8;
+	const result = [];
+	for (const lang of locales) {
+		const posts = await getPostsByLocale(lang);
+		const pages = paginate(posts, {
+			pageSize: PAGE_SIZE,
+			params: { locale: lang === defaultLocale ? undefined : lang },
+			props: { lang },
+		});
+		// 1. sayfa /blog (index.astro) tarafından karşılanıyor; burada yalnızca 2+ sayfalar.
+		result.push(...pages.filter((p) => p.params.page && p.params.page !== '1'));
+	}
+	return result;
+};
+
+const { page, lang } = Astro.props as { page: Page<Post>; lang: Locale };
+const t = useTranslations(lang);
+const base = localizePath(lang, '/blog');
+---
+
+<Base
+	title={`${t('blog.title')} — ${SITE_TITLE} (${page.currentPage})`}
+	description={t('blog.subtitle')}
+	lang={lang}
+>
+	<main class="mx-auto w-full max-w-6xl flex-1 px-4 py-12 sm:px-6">
+		<div class="grid gap-10 lg:grid-cols-[260px_1fr]">
+			<Sidebar lang={lang} />
+			<div class="min-w-0">
+				<header class="mb-8">
+					<h1 class="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
+						{t('blog.title')}
+					</h1>
+					<p class="mt-2 text-slate-600 dark:text-slate-400">{t('blog.subtitle')}</p>
+				</header>
+				<PostList posts={page.data} lang={lang} />
+				<Pager page={page} base={base} lang={lang} />
+			</div>
+		</div>
+	</main>
+</Base>

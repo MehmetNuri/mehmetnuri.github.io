@@ -1,0 +1,112 @@
+---
+import { SITE_TITLE, GITHUB_URL, EMAIL } from '../consts';
+import { type Locale, localizePath, useTranslations } from '../i18n/ui';
+
+interface Props {
+	lang: Locale;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const today = new Date();
+
+const nav = [
+	{ href: localizePath(lang, '/'), label: t('nav.home') },
+	{ href: localizePath(lang, '/blog'), label: t('nav.blog') },
+	{ href: localizePath(lang, '/java'), label: 'Java' },
+	{ href: localizePath(lang, '/notes'), label: t('nav.notes') },
+	{ href: localizePath(lang, '/projects'), label: t('nav.projects') },
+	{ href: localizePath(lang, '/archive'), label: t('nav.archive') },
+	{ href: localizePath(lang, '/about'), label: t('nav.about') },
+];
+const more = [
+	{ href: localizePath(lang, '/uses'), label: t('nav.uses') },
+	{ href: localizePath(lang, '/now'), label: t('nav.now') },
+	{ href: localizePath(lang, '/bookmarks'), label: t('nav.bookmarks') },
+	{ href: localizePath(lang, '/colophon'), label: t('nav.colophon') },
+];
+const links = [
+	{ href: GITHUB_URL, label: 'GitHub', ext: true },
+	{ href: `mailto:${EMAIL}`, label: 'E-posta', ext: false },
+	{ href: localizePath(lang, '/rss.xml'), label: 'RSS', ext: false },
+];
+const heading = 'mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400';
+const linkCls = 'text-sm text-slate-600 transition hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400';
+---
+
+<footer
+	class="mt-auto border-t border-slate-200/70 bg-slate-50/60 dark:border-slate-800/70 dark:bg-slate-900/40"
+>
+	<div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+		<div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
+			<div class="lg:col-span-2">
+				<a href={localizePath(lang, '/')} class="flex items-center gap-2.5">
+					<span
+						class="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-brand-500 to-cyan-400 text-sm font-extrabold text-white"
+						>MN</span
+					>
+					<span class="font-semibold tracking-tight text-slate-900 dark:text-white">
+						{SITE_TITLE}
+					</span>
+				</a>
+				<p class="mt-3 max-w-xs text-sm text-slate-600 dark:text-slate-400">{t('site.bio')}</p>
+			</div>
+
+			<div>
+				<h3 class={heading}>{lang === 'en' ? 'Navigation' : 'Bağlantılar'}</h3>
+				<ul class="space-y-2">
+					{nav.map((item) => (
+						<li>
+							<a class={linkCls} href={item.href}>{item.label}</a>
+						</li>
+					))}
+				</ul>
+			</div>
+
+			<div>
+				<h3 class={heading}>{t('nav.more')}</h3>
+				<ul class="space-y-2">
+					{more.map((item) => (
+						<li>
+							<a class={linkCls} href={item.href}>{item.label}</a>
+						</li>
+					))}
+				</ul>
+			</div>
+
+			<div>
+				<h3 class={heading}>{lang === 'en' ? 'Connect' : 'İletişim'}</h3>
+				<ul class="space-y-2">
+					{links.map((item) => (
+						<li>
+							<a
+								class={linkCls}
+								href={item.href}
+								{...item.ext ? { target: '_blank', rel: 'noopener noreferrer' } : {}}
+							>
+								{item.label}
+							</a>
+						</li>
+					))}
+				</ul>
+			</div>
+		</div>
+
+		<div
+			class="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200/70 pt-6 text-sm text-slate-500 dark:border-slate-800/70 dark:text-slate-400"
+		>
+			<p>&copy; {today.getFullYear()} {SITE_TITLE} · {t('footer.rights')}</p>
+			<p>{lang === 'en' ? 'Built with Astro & Tailwind CSS' : 'Astro & Tailwind CSS ile kuruldu'}</p>
+		</div>
+	</div>
+</footer>
+
+<button
+	id="back-to-top"
+	type="button"
+	aria-label={lang === 'en' ? 'Back to top' : 'Yukarı çık'}
+	class="pointer-events-none fixed right-5 bottom-5 z-40 grid size-11 translate-y-2 place-items-center rounded-full border border-slate-200 bg-white/80 text-slate-600 opacity-0 shadow-lg backdrop-blur transition hover:border-brand-500 hover:text-brand-600 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-300 dark:hover:text-brand-400"
+>
+	<svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+		<path d="m18 15-6-6-6 6"></path>
+	</svg>
+</button>

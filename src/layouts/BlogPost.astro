@@ -1,0 +1,419 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import type { MarkdownHeading } from 'astro';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import Header from '../components/Header.astro';
+import Comments from '../components/Comments.astro';
+import CommandPalette from '../components/CommandPalette.astro';
+import Newsletter from '../components/Newsletter.astro';
+import Webmentions from '../components/Webmentions.astro';
+import { getWebmentions } from '../lib/webmentions';
+import FeelbackReaction from 'astro-feelback/components/FeelbackReaction.astro';
+import 'astro-feelback/styles/feelback.css';
+import { FEELBACK_CONTENT_SET_ID } from '../consts';
+import { slugify } from '../lib/utils';
+import { blogPostingSchema, breadcrumbSchema, faqSchema } from '../lib/seo';
+import { type Locale, localizePath, useTranslations, formatReadingTime } from '../i18n/ui';
+
+type NeighborLink = { url: string; title: string } | null;
+
+type Props = CollectionEntry<'blog'>['data'] & {
+	minutesRead?: number;
+	wordCount?: number;
+	slug?: string;
+	ogId?: string;
+	lang: Locale;
+	langUrls?: Partial<Record<Locale, string>>;
+	headings?: MarkdownHeading[];
+	prevPost?: NeighborLink;
+	nextPost?: NeighborLink;
+	relatedPosts?: { url: string; title: string; date: Date; minutes: number }[];
+	seriesInfo?: {
+		name: string;
+		items: { url: string; title: string; isCurrent: boolean; num: number }[];
+	} | null;
+};
+
+const {
+	title,
+	description,
+	pubDate,
+	updatedDate,
+	heroImage,
+	minutesRead,
+	wordCount,
+	ogId,
+	category,
+	tags,
+	tech,
+	faq,
+	lang,
+	langUrls,
+	headings = [],
+	prevPost = null,
+	nextPost = null,
+	relatedPosts = [],
+	seriesInfo = null,
+} = Astro.props;
+
+const t = useTranslations(lang);
+const ogImage = ogId ? `/open-graph/${ogId}.png` : undefined;
+const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
+const shareBtn =
+	'inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-600 transition hover:border-brand-500 hover:text-brand-600 dark:border-slate-800 dark:text-slate-400 dark:hover:text-brand-400';
+
+const siteUrl = Astro.site!.href;
+const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
+const ogAbs = new URL(ogImage ?? '/favicon.svg', Astro.site).href;
+const langCode = lang === 'en' ? 'en-US' : 'tr-TR';
+
+// Webmention.io etkileşimleri (WEBMENTION.domain boşsa boş döner).
+const webmentions = await getWebmentions(pageUrl);
+
+const jsonLd = [
+	blogPostingSchema({
+		url: pageUrl,
+		title,
+		description,
+		image: ogAbs,
+		datePublished: pubDate.toISOString(),
+		dateModified: (updatedDate ?? pubDate).toISOString(),
+		lang: langCode,
+		siteUrl,
+		keywords: tags,
+		wordCount,
+		articleSection: category,
+		tech,
+	}),
+	breadcrumbSchema([
+		{ name: t('nav.home'), url: new URL(localizePath(lang, '/'), Astro.site).href },
+		{ name: t('nav.blog'), url: new URL(localizePath(lang, '/blog'), Astro.site).href },
+		{ name: title, url: pageUrl },
+	]),
+	...(faq && faq.length ? [faqSchema(faq)] : []),
+];
+---
+
+<html lang={lang}>
+	<head>
+		<BaseHead
+			title={title}
+			description={description}
+			ogImage={ogImage}
+			lang={lang}
+			type="article"
+			publishedTime={pubDate}
+			modifiedTime={updatedDate}
+			alternates={langUrls}
+			jsonLd={jsonLd}
+		/>
+	</head>
+	<body>
+		<div
+			id="reading-progress"
+			class="fixed inset-x-0 top-0 z-[60] h-0.5 origin-left scale-x-0 bg-gradient-to-r from-brand-500 to-cyan-400"
+		>
+		</div>
+		<Header lang={lang} langUrls={langUrls} />
+		<main class="mx-auto w-full max-w-6xl flex-1 px-4 py-16 sm:px-6">
+			<div class="mx-auto flex max-w-3xl flex-col gap-12 xl:max-w-5xl xl:flex-row xl:gap-12">
+				<article class="w-full min-w-0 xl:max-w-3xl">
+					<a
+						href={localizePath(lang, '/blog')}
+						class="text-sm text-slate-500 transition hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400"
+						>{t('post.back')}</a
+					>
+
+					<header class="mt-8">
+						<div
+							class="flex flex-wrap items-center gap-2 font-mono text-sm text-slate-500 dark:text-slate-400"
+						>
+							<FormattedDate date={pubDate} lang={lang} />
+							{minutesRead && <span>· {formatReadingTime(minutesRead, lang)}</span>}
+							{
+								category && (
+									<a
+										href={localizePath(lang, `/kategori/${slugify(category)}`)}
+										class="rounded-full bg-brand-500/10 px-2 py-0.5 font-sans text-xs font-medium text-brand-600 no-underline dark:text-brand-400"
+									>
+										{category}
+									</a>
+								)
+							}
+							{
+								updatedDate && (
+									<span class="italic">
+										· {t('post.updated')} <FormattedDate date={updatedDate} lang={lang} />
+									</span>
+								)
+							}
+						</div>
+						<h1
+							class="mt-3 text-3xl font-bold tracking-tight text-balance text-slate-900 sm:text-4xl dark:text-white"
+						>
+							{title}
+						</h1>
+						{
+							description && (
+								<p class="mt-3 text-lg text-pretty text-slate-600 dark:text-slate-400">
+									{description}
+								</p>
+							)
+						}
+					</header>
+
+					{
+						heroImage && (
+							<div class="mt-8">
+								<Image
+									width={1020}
+									height={510}
+									src={heroImage}
+									alt={title}
+									loading="eager"
+									fetchpriority="high"
+									class="w-full rounded-2xl shadow-lg"
+								/>
+							</div>
+						)
+					}
+
+					{
+						seriesInfo && (
+							<div class="surface mt-8 p-5">
+								<p class="text-xs font-semibold uppercase tracking-wide text-brand-600 dark:text-brand-400">
+									{t('post.series')} · {seriesInfo.name}
+								</p>
+								<ol class="mt-3 space-y-1.5">
+									{seriesInfo.items.map((it) => (
+										<li class="flex gap-2 text-sm">
+											<span class="text-slate-400">{it.num}.</span>
+											{it.isCurrent ? (
+												<span class="font-semibold text-slate-900 dark:text-white">{it.title}</span>
+											) : (
+												<a
+													href={it.url}
+													class="text-slate-600 transition hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400"
+												>
+													{it.title}
+												</a>
+											)}
+										</li>
+									))}
+								</ol>
+							</div>
+						)
+					}
+
+					<div
+						class="prose prose-slate mt-10 max-w-none dark:prose-invert prose-headings:scroll-mt-24 prose-a:text-brand-600 dark:prose-a:text-brand-400 prose-img:rounded-xl"
+					>
+						<slot />
+					</div>
+
+					{
+						tags && tags.length > 0 && (
+							<div class="mt-10 flex flex-wrap gap-2">
+								{tags.map((tag) => (
+									<a
+										href={localizePath(lang, `/etiket/${slugify(tag)}`)}
+										class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-medium text-slate-600 transition hover:border-brand-500 hover:text-brand-600 dark:border-slate-800 dark:bg-slate-800/60 dark:text-slate-400 dark:hover:text-brand-400"
+									>
+										#{tag}
+									</a>
+								))}
+							</div>
+						)
+					}
+
+					<!-- Paylaş -->
+					<div
+						class="mt-8 flex flex-wrap items-center gap-2 border-t border-slate-200 pt-6 dark:border-slate-800"
+					>
+						<span class="mr-1 text-sm font-medium text-slate-600 dark:text-slate-400">
+							{t('post.share')}
+						</span>
+						<a
+							class={shareBtn}
+							href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(pageUrl)}`}
+							target="_blank"
+							rel="noopener noreferrer"
+							aria-label="X"
+						>
+							<svg class="size-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+								<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" />
+							</svg>
+							<span class="hidden sm:inline">X</span>
+						</a>
+						<a
+							class={shareBtn}
+							href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(pageUrl)}`}
+							target="_blank"
+							rel="noopener noreferrer"
+							aria-label="LinkedIn"
+						>
+							<svg class="size-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+								<path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.22.79 24 1.77 24h20.45c.98 0 1.78-.78 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z" />
+							</svg>
+							<span class="hidden sm:inline">LinkedIn</span>
+						</a>
+						<button
+							type="button"
+							id="copy-link"
+							class={shareBtn}
+							data-url={pageUrl}
+							data-label-copy={t('post.copy')}
+							data-label-copied={t('post.copied')}
+							aria-label={t('post.copy')}
+						>
+							<svg
+								class="size-4"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								aria-hidden="true"
+							>
+								<rect x="9" y="9" width="13" height="13" rx="2"></rect>
+								<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+							</svg>
+							<span data-copy-text class="hidden sm:inline">{t('post.copy')}</span>
+						</button>
+					</div>
+
+					<!-- Önceki / Sonraki -->
+					{
+						(prevPost || nextPost) && (
+							<nav class="mt-6 grid gap-3 sm:grid-cols-2">
+								{prevPost ? (
+									<a href={prevPost.url} class="surface card-hover block p-4">
+										<span class="text-xs text-slate-500 dark:text-slate-400">{t('pager.prev')}</span>
+										<span class="mt-1 block font-medium text-slate-900 dark:text-white">
+											{prevPost.title}
+										</span>
+									</a>
+								) : (
+									<span />
+								)}
+								{nextPost && (
+									<a href={nextPost.url} class="surface card-hover block p-4 sm:text-right">
+										<span class="text-xs text-slate-500 dark:text-slate-400">{t('pager.next')}</span>
+										<span class="mt-1 block font-medium text-slate-900 dark:text-white">
+											{nextPost.title}
+										</span>
+									</a>
+								)}
+							</nav>
+						)
+					}
+
+					{
+						FEELBACK_CONTENT_SET_ID && (
+							<section class="mt-12 border-t border-slate-200 pt-8 dark:border-slate-800">
+								<p class="mb-3 text-sm font-medium text-slate-600 dark:text-slate-400">
+									{t('post.helpful')}
+								</p>
+								<FeelbackReaction
+									contentSetId={FEELBACK_CONTENT_SET_ID}
+									key={ogId}
+									layout="picker"
+									preset="github"
+									showCount
+								/>
+							</section>
+						)
+					}
+
+					{
+						relatedPosts.length > 0 && (
+							<section class="mt-12 border-t border-slate-200 pt-8 dark:border-slate-800">
+								<h2 class="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
+									{t('post.related')}
+								</h2>
+								<div class="grid gap-4 sm:grid-cols-3">
+									{relatedPosts.map((r) => (
+										<a href={r.url} class="surface card-hover block p-4">
+											<div class="text-xs text-slate-500 dark:text-slate-400">
+												<FormattedDate date={r.date} lang={lang} /> ·{' '}
+												{formatReadingTime(r.minutes, lang)}
+											</div>
+											<h3 class="mt-1.5 font-medium text-slate-900 dark:text-white">{r.title}</h3>
+										</a>
+									))}
+								</div>
+							</section>
+						)
+					}
+
+					{
+						faq && faq.length > 0 && (
+							<section class="mt-12 border-t border-slate-200 pt-8 dark:border-slate-800">
+								<h2 class="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
+									{lang === 'en' ? 'Frequently asked questions' : 'Sıkça sorulan sorular'}
+								</h2>
+								<div class="space-y-3">
+									{faq.map((item) => (
+										<details class="surface group p-4">
+											<summary class="cursor-pointer list-none font-medium text-slate-900 dark:text-white">
+												<span class="inline-flex w-full items-center justify-between gap-2">
+													{item.q}
+													<svg class="size-4 shrink-0 text-slate-400 transition group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+														<path d="m6 9 6 6 6-6" />
+													</svg>
+												</span>
+											</summary>
+											<p class="mt-2 text-sm text-slate-600 dark:text-slate-400">{item.a}</p>
+										</details>
+									))}
+								</div>
+							</section>
+						)
+					}
+
+					<div class="mt-12">
+						<Newsletter lang={lang} />
+					</div>
+
+					<Webmentions lang={lang} data={webmentions} pageUrl={pageUrl} />
+
+					<Comments lang={lang} />
+				</article>
+
+				{
+					toc.length > 1 && (
+						<aside class="hidden w-56 shrink-0 xl:block">
+							<div class="sticky top-24">
+								<p class="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+									{t('post.toc')}
+								</p>
+								<ul class="space-y-2 border-l border-slate-200 dark:border-slate-800">
+									{toc.map((h) => (
+										<li>
+											<a
+												href={`#${h.slug}`}
+												data-toc-link={h.slug}
+												class:list={[
+													'-ml-px block border-l border-transparent py-0.5 text-sm text-slate-500 transition hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400',
+													h.depth === 3 ? 'pl-6' : 'pl-3',
+												]}
+											>
+												{h.text}
+											</a>
+										</li>
+									))}
+								</ul>
+							</div>
+						</aside>
+					)
+				}
+			</div>
+		</main>
+		<Footer lang={lang} />
+		<CommandPalette lang={lang} />
+	</body>
+</html>

@@ -1,0 +1,209 @@
+---
+import { GITHUB_URL } from '../consts';
+import HeaderLink from './HeaderLink.astro';
+import Search from 'astro-pagefind/components/Search.astro';
+import {
+	locales,
+	type Locale,
+	localizePath,
+	pathForLocale,
+	useTranslations,
+} from '../i18n/ui';
+
+interface Props {
+	lang: Locale;
+	langUrls?: Partial<Record<Locale, string>>;
+}
+
+const { lang, langUrls } = Astro.props;
+const t = useTranslations(lang);
+
+const switchTargets = locales
+	.filter((l) => l !== lang)
+	.map((l) => ({
+		lang: l,
+		url: langUrls ? langUrls[l] : pathForLocale(Astro.url.pathname, l),
+	}))
+	.filter((x): x is { lang: Locale; url: string } => Boolean(x.url));
+---
+
+<a
+	href="#main-content"
+	class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[80] focus:rounded-lg focus:bg-brand-600 focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white"
+>
+	{t('nav.search') === 'Search' ? 'Skip to content' : 'İçeriğe geç'}
+</a>
+<header
+	class="sticky top-0 z-50 border-b border-slate-200/70 bg-white/80 backdrop-blur-md dark:border-slate-800/70 dark:bg-slate-950/80"
+>
+	<nav class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+		<a href={localizePath(lang, '/')} class="flex items-center gap-2.5">
+			<span
+				class="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-brand-500 to-cyan-400 text-sm font-extrabold text-white"
+				>MN</span
+			>
+			<span class="hidden font-semibold tracking-tight text-slate-900 sm:block dark:text-white"
+				>Mehmet Nuri</span
+			>
+		</a>
+
+		<div class="flex items-center gap-1">
+			<HeaderLink href={localizePath(lang, '/')} home>{t('nav.home')}</HeaderLink>
+			<HeaderLink href={localizePath(lang, '/blog')}>{t('nav.blog')}</HeaderLink>
+			<HeaderLink href={localizePath(lang, '/projects')} class="hidden sm:inline-block">{t('nav.projects')}</HeaderLink>
+			<HeaderLink href={localizePath(lang, '/notes')} class="hidden md:inline-block">{t('nav.notes')}</HeaderLink>
+			<HeaderLink href={localizePath(lang, '/about')}>{t('nav.about')}</HeaderLink>
+		</div>
+
+		<div class="flex items-center gap-1">
+			<button
+				id="search-open"
+				type="button"
+				aria-label={t('nav.search')}
+				class="mr-1 flex items-center gap-2 rounded-lg border border-slate-200 px-2.5 py-1.5 text-sm text-slate-500 transition hover:border-slate-300 hover:text-slate-900 dark:border-slate-800 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:text-white"
+			>
+				<svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+					<circle cx="11" cy="11" r="7"></circle>
+					<path d="m21 21-4.3-4.3"></path>
+				</svg>
+				<span class="hidden sm:inline">{t('nav.search')}</span>
+				<kbd
+					class="hidden rounded border border-slate-300 px-1 font-sans text-[10px] text-slate-400 sm:inline dark:border-slate-700"
+					>⌘K</kbd
+				>
+			</button>
+			{
+				switchTargets.map((target) => (
+					<a
+						href={target.url}
+						class="rounded-lg px-2.5 py-1.5 text-sm font-semibold text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+						aria-label={`Switch to ${target.lang}`}
+					>
+						{target.lang.toUpperCase()}
+					</a>
+				))
+			}
+			<div class="relative">
+				<button
+					id="accent-toggle"
+					type="button"
+					aria-label={lang === 'en' ? 'Accent color' : 'Vurgu rengi'}
+					class="grid size-9 place-items-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+				>
+					<svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle>
+						<circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle>
+						<circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle>
+						<circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle>
+						<path d="M12 2a10 10 0 0 0 0 20c.94 0 1.7-.76 1.7-1.7 0-.44-.17-.84-.44-1.14-.27-.3-.44-.7-.44-1.14 0-.94.76-1.7 1.7-1.7H16a6 6 0 0 0 6-6 10 10 0 0 0-10-10Z"></path>
+					</svg>
+				</button>
+				<div
+					id="accent-popover"
+					class="surface absolute right-0 z-[60] mt-2 hidden p-2.5 shadow-xl"
+				>
+					<div class="flex gap-2">
+						<button class="accent-dot size-6 rounded-full bg-indigo-500 ring-2 ring-transparent transition hover:scale-110" data-accent="indigo" aria-label="Indigo" type="button"></button>
+						<button class="accent-dot size-6 rounded-full bg-violet-500 ring-2 ring-transparent transition hover:scale-110" data-accent="violet" aria-label="Violet" type="button"></button>
+						<button class="accent-dot size-6 rounded-full bg-sky-500 ring-2 ring-transparent transition hover:scale-110" data-accent="sky" aria-label="Sky" type="button"></button>
+						<button class="accent-dot size-6 rounded-full bg-emerald-500 ring-2 ring-transparent transition hover:scale-110" data-accent="emerald" aria-label="Emerald" type="button"></button>
+						<button class="accent-dot size-6 rounded-full bg-rose-500 ring-2 ring-transparent transition hover:scale-110" data-accent="rose" aria-label="Rose" type="button"></button>
+					</div>
+				</div>
+			</div>
+			<button
+				id="theme-toggle"
+				type="button"
+				aria-label="Tema"
+				class="grid size-9 place-items-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+			>
+				<svg class="hidden size-5 dark:block" viewBox="0 0 24 24" aria-hidden="true"
+					><path
+						fill="currentColor"
+						d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2a7 7 0 1 1 0-14 7 7 0 0 1 0 14zM11 1h2v3h-2V1zm0 19h2v3h-2v-3zM3.515 4.929l1.414-1.414L7.05 5.636 5.636 7.05 3.515 4.93zM16.95 18.364l1.414-1.414 2.121 2.121-1.414 1.415-2.121-2.122zm2.121-14.85l1.414 1.415-2.121 2.121-1.414-1.414 2.121-2.121zM5.636 16.95l1.414 1.414-2.121 2.121-1.414-1.414 2.121-2.121zM23 11v2h-3v-2h3zM4 11v2H1v-2h3z"
+					></path></svg
+				>
+				<svg class="size-5 dark:hidden" viewBox="0 0 24 24" aria-hidden="true"
+					><path
+						fill="currentColor"
+						d="M11.38 2.019a7.5 7.5 0 1 0 10.6 10.6C21.662 17.854 17.316 22 12 22 6.477 22 2 17.523 2 12c0-5.316 4.146-9.662 9.38-9.981z"
+					></path></svg
+				>
+			</button>
+			<a
+				href={GITHUB_URL}
+				target="_blank"
+				rel="noopener noreferrer"
+				aria-label="GitHub"
+				class="grid size-9 place-items-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+			>
+				<svg viewBox="0 0 16 16" aria-hidden="true" class="size-5"
+					><path
+						fill="currentColor"
+						d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"
+					></path></svg
+				>
+			</a>
+		</div>
+	</nav>
+</header>
+
+<!-- Global arama modalı -->
+<div id="search-modal" class="fixed inset-0 z-[70] hidden items-start justify-center p-4 pt-[12vh]">
+	<div id="search-backdrop" class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"></div>
+	<div class="surface relative w-full max-w-xl p-4 shadow-2xl">
+		<Search className="pagefind-ui" />
+	</div>
+</div>
+
+<!-- Klavye kısayolları yardımı (? ile açılır) -->
+<div id="help-modal" class="fixed inset-0 z-[70] hidden items-center justify-center p-4">
+	<div id="help-backdrop" class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"></div>
+	<div class="surface relative w-full max-w-sm p-6 shadow-2xl">
+		<h2 class="mb-4 text-base font-semibold text-slate-900 dark:text-white">
+			{lang === 'en' ? 'Keyboard shortcuts' : 'Klavye kısayolları'}
+		</h2>
+		<dl class="space-y-2.5 text-sm text-slate-600 dark:text-slate-400">
+			<div class="flex items-center justify-between">
+				<dt>{lang === 'en' ? 'Command palette' : 'Komut paleti'}</dt>
+				<dd><kbd class="kbd">⌘K</kbd></dd>
+			</div>
+			<div class="flex items-center justify-between">
+				<dt>{lang === 'en' ? 'Search' : 'Arama'}</dt>
+				<dd><kbd class="kbd">/</kbd></dd>
+			</div>
+			<div class="flex items-center justify-between">
+				<dt>{lang === 'en' ? 'Toggle theme' : 'Tema değiştir'}</dt>
+				<dd><kbd class="kbd">T</kbd></dd>
+			</div>
+			<div class="flex items-center justify-between">
+				<dt>{lang === 'en' ? 'This help' : 'Bu yardım'}</dt>
+				<dd><kbd class="kbd">?</kbd></dd>
+			</div>
+			<div class="flex items-center justify-between">
+				<dt>{lang === 'en' ? 'Close' : 'Kapat'}</dt>
+				<dd><kbd class="kbd">Esc</kbd></dd>
+			</div>
+		</dl>
+	</div>
+</div>
+
+<style is:global>
+	.kbd {
+		display: inline-block;
+		min-width: 1.5rem;
+		padding: 0.1rem 0.4rem;
+		text-align: center;
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		border-radius: 0.375rem;
+		border: 1px solid rgb(226 232 240);
+		background: rgb(248 250 252);
+		color: rgb(71 85 105);
+	}
+	[data-theme='dark'] .kbd {
+		border-color: rgb(51 65 85);
+		background: rgb(30 41 59);
+		color: rgb(203 213 225);
+	}
+</style>

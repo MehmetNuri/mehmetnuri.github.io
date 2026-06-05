@@ -1,0 +1,220 @@
+---
+import Base from '../../layouts/Base.astro';
+import Emoji from 'astro-emoji';
+import { Button } from '../../components/starwind/button';
+import FormattedDate from '../../components/FormattedDate.astro';
+import { getPostsByLocale, postSlug } from '../../lib/utils';
+import { SITE_TITLE, SITE_DESCRIPTION, GITHUB_URL } from '../../consts';
+import { locales, type Locale, defaultLocale, localizePath, useTranslations } from '../../i18n/ui';
+import { websiteSchema, personSchema } from '../../lib/seo';
+
+export function getStaticPaths() {
+	return locales.map((lang) => ({
+		params: { locale: lang === defaultLocale ? undefined : lang },
+		props: { lang },
+	}));
+}
+
+const { lang } = Astro.props as { lang: Locale };
+const t = useTranslations(lang);
+const allPosts = await getPostsByLocale(lang);
+const posts = allPosts.slice(0, 4);
+const stack = ['Web', 'Sistem Tasarımı', '.NET', 'TypeScript', 'Cloud', 'DevOps', 'Açık Kaynak'];
+
+const topics =
+	lang === 'en'
+		? [
+				{ icon: 'code', title: 'Web & Software', desc: 'Building for the web, end to end.' },
+				{ icon: 'layers', title: 'System Design', desc: 'How systems fit together and scale.' },
+				{ icon: 'cloud', title: 'Cloud & DevOps', desc: 'Shipping, automating, observing.' },
+				{ icon: 'branch', title: 'Open Source', desc: 'Learning and sharing in the open.' },
+			]
+		: [
+				{ icon: 'code', title: 'Web & Yazılım', desc: 'Uçtan uca web geliştirme.' },
+				{ icon: 'layers', title: 'Sistem Tasarımı', desc: 'Sistemlerin nasıl birleştiği ve ölçeklendiği.' },
+				{ icon: 'cloud', title: 'Cloud & DevOps', desc: 'Yayınlama, otomasyon, gözlemleme.' },
+				{ icon: 'branch', title: 'Açık Kaynak', desc: 'Açıkta öğrenmek ve paylaşmak.' },
+			];
+
+const stats = [
+	{ to: allPosts.length, suffix: '', label: lang === 'en' ? 'posts' : 'yazı' },
+	{ to: 2, suffix: '', label: lang === 'en' ? 'languages' : 'dil' },
+	{ to: topics.length, suffix: '', label: lang === 'en' ? 'topics' : 'konu' },
+	{ to: 100, suffix: '%', label: lang === 'en' ? 'open source' : 'açık kaynak' },
+];
+
+const siteUrl = Astro.site!.href;
+const jsonLd = [websiteSchema(siteUrl, lang === 'en' ? 'en-US' : 'tr-TR'), personSchema(siteUrl, lang)];
+---
+
+<Base title={SITE_TITLE} description={SITE_DESCRIPTION} lang={lang} jsonLd={jsonLd}>
+	<main class="mx-auto w-full max-w-5xl flex-1 px-4 py-16 sm:px-6">
+		<!-- Hero -->
+		<section class="grid items-center gap-10 lg:grid-cols-2">
+			<div>
+				<span
+					class="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-400"
+				>
+					<span class="relative flex size-2">
+						<span
+							class="absolute inline-flex size-full animate-ping rounded-full bg-emerald-500 opacity-75"
+						></span>
+						<span class="relative inline-flex size-2 rounded-full bg-emerald-500"></span>
+					</span>
+					{t('home.status')}
+				</span>
+				<p class="mt-5 mb-3 text-sm font-medium text-slate-500 dark:text-slate-400">
+					<Emoji symbol="👋" label="" /> {t('home.eyebrow')}
+				</p>
+				<h1
+					class="text-4xl font-bold tracking-tight text-balance text-slate-900 sm:text-5xl dark:text-white"
+				>
+					{t('home.heading.pre')}{' '}
+					<span
+						class="gradient-animate bg-gradient-to-r from-brand-500 via-violet-500 to-cyan-400 bg-clip-text text-transparent"
+						>{t('home.heading.accent')}</span
+					>.
+				</h1>
+				<p class="mt-5 max-w-xl text-lg text-pretty text-slate-600 dark:text-slate-400">
+					{t('home.lede')}
+				</p>
+				<div class="mt-7 flex flex-wrap gap-3">
+					<Button href={localizePath(lang, '/blog')} variant="primary" size="lg">
+						{t('home.readPosts')}
+					</Button>
+					<Button href={GITHUB_URL} variant="outline" size="lg" target="_blank" rel="noopener noreferrer">
+						GitHub
+					</Button>
+				</div>
+				<ul class="mt-7 flex flex-wrap gap-2">
+					{
+						stack.map((s) => (
+							<li class="rounded-full border border-slate-200 bg-slate-50/80 px-3 py-1 text-xs font-medium text-slate-600 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-400">
+								{s}
+							</li>
+						))
+					}
+				</ul>
+			</div>
+
+			<!-- Terminal mockup -->
+			<div class="surface overflow-hidden shadow-xl shadow-brand-500/5">
+				<div
+					class="flex items-center gap-2 border-b border-slate-200/70 bg-slate-100/60 px-4 py-3 dark:border-white/10 dark:bg-white/5"
+				>
+					<span class="size-3 rounded-full bg-red-400"></span>
+					<span class="size-3 rounded-full bg-amber-400"></span>
+					<span class="size-3 rounded-full bg-emerald-400"></span>
+					<span class="ml-2 font-mono text-xs text-slate-500 dark:text-slate-400">
+						~/mehmetnuri.com
+					</span>
+				</div>
+				<pre class="overflow-x-auto p-5 font-mono text-sm leading-7"><code><span class="text-slate-400">$</span> <span class="text-brand-600 dark:text-brand-400">git</span> add yeni-yazi.tr.md
+<span class="text-slate-400">$</span> <span class="text-brand-600 dark:text-brand-400">git</span> commit -m <span class="text-emerald-600 dark:text-emerald-400">"Yeni yazı"</span>
+<span class="text-slate-400">$</span> <span class="text-brand-600 dark:text-brand-400">git</span> push
+<span class="text-slate-400"># GitHub Actions → Astro build</span>
+<span class="text-emerald-600 dark:text-emerald-400">✓ Yayında:</span> mehmetnuri.com/blog/yeni-yazi</code></pre>
+			</div>
+		</section>
+
+		<!-- İstatistik şeridi -->
+		<section class="mt-10" data-reveal>
+			<div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+				{
+					stats.map((s) => (
+						<div class="surface p-4 text-center">
+							<div
+								class="stat-num text-2xl font-bold text-slate-900 dark:text-white"
+								data-to={s.to}
+								data-suffix={s.suffix}
+							>
+								{s.to}
+								{s.suffix}
+							</div>
+							<div class="mt-1 text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+								{s.label}
+							</div>
+						</div>
+					))
+				}
+			</div>
+		</section>
+
+		<!-- Konular (bento) -->
+		<section class="mt-20" data-reveal>
+			<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+				{
+					topics.map((topic) => (
+						<div class="surface card-hover p-5">
+							<span class="grid size-10 place-items-center rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400">
+								<svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+									{topic.icon === 'code' && <path d="m16 18 6-6-6-6M8 6l-6 6 6 6" />}
+									{topic.icon === 'layers' && (
+										<>
+											<path d="m12 2 9 5-9 5-9-5 9-5Z" />
+											<path d="m3 12 9 5 9-5M3 17l9 5 9-5" />
+										</>
+									)}
+									{topic.icon === 'cloud' && (
+										<path d="M17.5 19a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.7 1.5A4 4 0 0 0 6 19h11.5Z" />
+									)}
+									{topic.icon === 'branch' && (
+										<>
+											<circle cx="6" cy="6" r="2.5" />
+											<circle cx="6" cy="18" r="2.5" />
+											<circle cx="18" cy="8" r="2.5" />
+											<path d="M6 8.5v7M18 10.5c0 4-6 2-6 5" />
+										</>
+									)}
+								</svg>
+							</span>
+							<h3 class="mt-4 font-semibold text-slate-900 dark:text-white">{topic.title}</h3>
+							<p class="mt-1 text-sm text-slate-600 dark:text-slate-400">{topic.desc}</p>
+						</div>
+					))
+				}
+			</div>
+		</section>
+
+		<!-- Son yazılar -->
+		<section class="mt-20" data-reveal>
+			<div
+				class="mb-5 flex items-baseline justify-between border-b border-slate-200 pb-3 dark:border-slate-800"
+			>
+				<h2 class="text-xl font-semibold text-slate-900 dark:text-white">{t('home.recent')}</h2>
+				<a
+					href={localizePath(lang, '/blog')}
+					class="text-sm text-slate-500 transition hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400"
+					>{t('home.all')}</a
+				>
+			</div>
+			{
+				posts.length === 0 ? (
+					<p class="py-6 text-slate-500 dark:text-slate-400">{t('home.empty')}</p>
+				) : (
+					<div class="grid gap-4 sm:grid-cols-2">
+						{posts.map((post) => (
+							<a
+								href={localizePath(lang, `/blog/${postSlug(post)}`)}
+								class="group surface card-hover block p-5"
+							>
+								<div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+									<FormattedDate date={post.data.pubDate} lang={lang} />
+									{post.data.category && <span>· {post.data.category}</span>}
+								</div>
+								<h3 class="mt-2 font-semibold text-slate-900 transition group-hover:text-brand-600 dark:text-white dark:group-hover:text-brand-400">
+									{post.data.title}
+								</h3>
+								{post.data.description && (
+									<p class="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-400">
+										{post.data.description}
+									</p>
+								)}
+							</a>
+						))}
+					</div>
+				)
+			}
+		</section>
+	</main>
+</Base>

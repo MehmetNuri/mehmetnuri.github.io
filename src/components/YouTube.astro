@@ -1,0 +1,60 @@
+---
+// Gizlilik dostu, tıkla-oynat YouTube gömülümü (MDX içinde):
+//   <YouTube id="dQw4w9WgXcQ" title="Video başlığı" />
+// Sayfa açılışında YouTube'a istek atmaz; yalnızca küçük resim yüklenir.
+interface Props {
+	id: string;
+	title?: string;
+}
+const { id, title = 'YouTube' } = Astro.props;
+const thumb = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+---
+
+<div class="yt-embed not-prose my-6 overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
+	<button
+		class="yt-facade group relative block aspect-video w-full"
+		data-id={id}
+		type="button"
+		aria-label={`${title} — oynat`}
+		style={`background-image:url(${thumb})`}
+	>
+		<span
+			class="absolute inset-0 grid place-items-center bg-black/25 transition group-hover:bg-black/15"
+		>
+			<span
+				class="grid size-16 place-items-center rounded-full bg-red-600 text-white shadow-lg transition group-hover:scale-110"
+			>
+				<svg class="size-7 translate-x-0.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+					<path d="M8 5v14l11-7z"></path>
+				</svg>
+			</span>
+		</span>
+	</button>
+</div>
+
+<style>
+	.yt-facade {
+		background-size: cover;
+		background-position: center;
+		cursor: pointer;
+	}
+</style>
+
+<script>
+	document.addEventListener('astro:page-load', () => {
+		document.querySelectorAll<HTMLButtonElement>('.yt-facade:not([data-bound])').forEach((btn) => {
+			btn.dataset.bound = '1';
+			btn.addEventListener('click', () => {
+				const id = btn.dataset.id;
+				const iframe = document.createElement('iframe');
+				iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`;
+				iframe.className = 'aspect-video w-full';
+				iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+				iframe.setAttribute('allowfullscreen', '');
+				iframe.setAttribute('loading', 'lazy');
+				iframe.style.border = '0';
+				btn.replaceWith(iframe);
+			});
+		});
+	});
+</script>

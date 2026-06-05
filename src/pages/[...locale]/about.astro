@@ -1,0 +1,141 @@
+---
+import Base from '../../layouts/Base.astro';
+import { Badge } from '../../components/starwind/badge';
+import { Button } from '../../components/starwind/button';
+import { SITE_TITLE, GITHUB_URL, EMAIL, AUTHOR_NAME } from '../../consts';
+import { personSchema, breadcrumbSchema } from '../../lib/seo';
+import { locales, type Locale, defaultLocale, localizePath, useTranslations } from '../../i18n/ui';
+
+export function getStaticPaths() {
+	return locales.map((lang) => ({
+		params: { locale: lang === defaultLocale ? undefined : lang },
+		props: { lang },
+	}));
+}
+
+const { lang } = Astro.props as { lang: Locale };
+const t = useTranslations(lang);
+const en = lang === 'en';
+
+const desc = en
+	? 'Mehmet Nuri Öztürk — someone who loves building software. Who I am, what I work on and what I use.'
+	: 'Mehmet Nuri Öztürk — yazılımla uğraşmayı seven biri. Kim olduğum, neyle ilgilendiğim ve neler kullandığım.';
+
+const skillGroups = [
+	{ title: en ? 'Languages' : 'Diller', items: ['TypeScript', 'JavaScript', 'C#', 'Python', 'SQL'] },
+	{ title: 'Frontend', items: ['Astro', 'React', 'Tailwind CSS', 'HTML & CSS'] },
+	{ title: 'Backend', items: ['.NET', 'Node.js', 'REST', 'GraphQL'] },
+	{ title: 'Cloud & DevOps', items: ['Docker', 'GitHub Actions', 'Linux', 'CI/CD'] },
+];
+
+const intro = en
+	? 'I love building software, trying new things and learning. I care more about the work itself and staying curious than about titles.'
+	: 'Yazılımla uğraşmayı, yeni şeyler denemeyi ve öğrenmeyi severim. Unvanlardan çok yapılan işe ve merakı canlı tutmaya değer veririm.';
+
+const nowText = en
+	? 'Currently focused on scalable web systems and system design — and sharing what I learn here.'
+	: 'Şu sıralar ölçeklenebilir web sistemleri ve sistem tasarımı üzerine yoğunlaşıyorum — öğrendiklerimi de burada paylaşıyorum.';
+
+const siteUrl = Astro.site!.href;
+const pageUrl = new URL(localizePath(lang, '/about'), Astro.site).href;
+const jsonLd = [
+	{
+		'@context': 'https://schema.org',
+		'@type': 'ProfilePage',
+		'@id': `${pageUrl}#profile`,
+		url: pageUrl,
+		inLanguage: en ? 'en-US' : 'tr-TR',
+		mainEntity: { '@id': `${siteUrl}#person` },
+		isPartOf: { '@id': `${siteUrl}#website` },
+	},
+	personSchema(siteUrl, lang),
+	breadcrumbSchema([
+		{ name: t('nav.home'), url: new URL(localizePath(lang, '/'), Astro.site).href },
+		{ name: en ? 'About' : 'Hakkımda', url: pageUrl },
+	]),
+];
+---
+
+<Base title={`${en ? 'About' : 'Hakkımda'} — ${SITE_TITLE}`} description={desc} lang={lang} jsonLd={jsonLd}>
+	<main class="mx-auto w-full max-w-3xl flex-1 px-4 py-16 sm:px-6">
+		<!-- Tanıtım -->
+		<section class="flex flex-col items-start gap-6 sm:flex-row sm:items-center" data-reveal>
+			<span
+				class="grid size-20 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-brand-500 to-cyan-400 text-2xl font-extrabold text-white shadow-lg shadow-brand-500/20"
+				>MN</span
+			>
+			<div>
+				<h1 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
+					{AUTHOR_NAME}
+				</h1>
+				<p class="mt-1 text-brand-600 dark:text-brand-400">{t('site.tagline')}</p>
+				<p class="mt-3 text-slate-600 dark:text-slate-400">{intro}</p>
+				<div class="mt-5 flex flex-wrap gap-3">
+					<Button href={`mailto:${EMAIL}`} variant="primary" size="sm">
+						{en ? 'Get in touch' : 'İletişime geç'}
+					</Button>
+					<Button href={GITHUB_URL} variant="outline" size="sm" target="_blank" rel="noopener noreferrer">
+						GitHub
+					</Button>
+				</div>
+			</div>
+		</section>
+
+		<!-- Şu an -->
+		<section class="surface mt-12 p-6" data-reveal>
+			<div class="flex items-center gap-2">
+				<span class="relative flex size-2">
+					<span class="absolute inline-flex size-full animate-ping rounded-full bg-brand-500 opacity-75"></span>
+					<span class="relative inline-flex size-2 rounded-full bg-brand-500"></span>
+				</span>
+				<h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+					{en ? 'Now' : 'Şu an'}
+				</h2>
+			</div>
+			<p class="mt-3 text-lg text-pretty text-slate-700 dark:text-slate-300">{nowText}</p>
+		</section>
+
+		<!-- Yetenekler -->
+		<section class="mt-12" data-reveal>
+			<h2 class="mb-5 text-xl font-semibold text-slate-900 dark:text-white">
+				{en ? 'Skills & tools' : 'Yetenekler & araçlar'}
+			</h2>
+			<div class="grid gap-4 sm:grid-cols-2">
+				{
+					skillGroups.map((group) => (
+						<div class="surface p-5">
+							<h3 class="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+								{group.title}
+							</h3>
+							<div class="flex flex-wrap gap-2">
+								{group.items.map((item) => (
+									<Badge variant="secondary" size="sm">
+										{item}
+									</Badge>
+								))}
+							</div>
+						</div>
+					))
+				}
+			</div>
+		</section>
+
+		<!-- İletişim -->
+		<section class="surface mt-12 p-6 text-center sm:p-8" data-reveal>
+			<h2 class="text-2xl font-bold text-slate-900 dark:text-white">
+				{en ? 'Let’s talk' : 'Konuşalım'}
+			</h2>
+			<p class="mx-auto mt-2 max-w-md text-slate-600 dark:text-slate-400">
+				{
+					en
+						? 'Have a project or just want to say hi? I’d love to hear from you.'
+						: 'Bir projen mi var ya da sadece merhaba mı demek istiyorsun? Yazmaktan çekinme.'
+				}
+			</p>
+			<div class="mt-5 flex justify-center gap-3">
+				<Button href={`mailto:${EMAIL}`} variant="primary">{en ? 'Email me' : 'E-posta gönder'}</Button>
+				<Button href={GITHUB_URL} variant="ghost" target="_blank" rel="noopener noreferrer">GitHub</Button>
+			</div>
+		</section>
+	</main>
+</Base>

@@ -1,0 +1,96 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Sidebar from '../../../components/Sidebar.astro';
+import PostList from '../../../components/PostList.astro';
+import { getPostsByLocale, getTags, slugify } from '../../../lib/utils';
+import { collectionPageSchema, breadcrumbSchema } from '../../../lib/seo';
+import { SITE_TITLE } from '../../../consts';
+import { locales, type Locale, defaultLocale, localizePath, useTranslations } from '../../../i18n/ui';
+
+export async function getStaticPaths() {
+	const paths = [];
+	for (const lang of locales) {
+		const posts = await getPostsByLocale(lang);
+		for (const { name } of getTags(posts)) {
+			paths.push({
+				params: { locale: lang === defaultLocale ? undefined : lang, tag: slugify(name) },
+				props: {
+					lang,
+					label: name,
+					posts: posts.filter((p) => (p.data.tags ?? []).includes(name)),
+				},
+			});
+		}
+	}
+	return paths;
+}
+
+const { lang, label, posts } = Astro.props as {
+	lang: Locale;
+	label: string;
+	posts: Awaited<ReturnType<typeof getPostsByLocale>>;
+};
+const t = useTranslations(lang);
+
+const slug = slugify(label);
+const langUrls: Partial<Record<Locale, string>> = {};
+const alternates: Partial<Record<Locale, string>> = {};
+for (const l of locales) {
+	const self = localizePath(l, `/etiket/${slug}`);
+	if (l === lang) {
+		langUrls[l] = self;
+		alternates[l] = self;
+		continue;
+	}
+	const has = getTags(await getPostsByLocale(l)).some((x) => slugify(x.name) === slug);
+	langUrls[l] = has ? self : localizePath(l, '/blog');
+	if (has) alternates[l] = self;
+}
+
+const en = lang === 'en';
+const desc = en
+	? `All posts tagged “${label}” — ${posts.length} ${posts.length === 1 ? 'post' : 'posts'} on ${label} and related topics.`
+	: `“${label}” etiketli tüm yazılar — ${label} ve ilgili konular üzerine ${posts.length} yazı.`;
+const intro = en
+	? `Everything I’ve written about ${label}. Notes, tutorials and lessons collected in one place.`
+	: `${label} hakkında yazdığım her şey. Notlar, rehberler ve dersler tek bir yerde.`;
+
+const siteUrl = Astro.site!.href;
+const pageUrl = new URL(localizePath(lang, `/etiket/${slug}`), Astro.site).href;
+const jsonLd = [
+	collectionPageSchema({ url: pageUrl, name: `#${label}`, description: desc, lang: en ? 'en-US' : 'tr-TR', siteUrl }),
+	breadcrumbSchema([
+		{ name: t('nav.home'), url: new URL(localizePath(lang, '/'), Astro.site).href },
+		{ name: t('nav.blog'), url: new URL(localizePath(lang, '/blog'), Astro.site).href },
+		{ name: `#${label}`, url: pageUrl },
+	]),
+];
+---
+
+<Base
+	title={`#${label} — ${SITE_TITLE}`}
+	description={desc}
+	lang={lang}
+	langUrls={langUrls}
+	alternates={alternates}
+	jsonLd={jsonLd}
+>
+	<main class="mx-auto w-full max-w-6xl flex-1 px-4 py-12 sm:px-6">
+		<div class="grid gap-10 lg:grid-cols-[260px_1fr]">
+			<Sidebar lang={lang} />
+			<div class="min-w-0">
+				<header class="mb-8">
+					<p class="text-sm font-medium text-slate-500 dark:text-slate-400">{t('tag.label')}</p>
+					<h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+						#{label}
+					</h1>
+					<p class="mt-2 max-w-2xl text-pretty text-slate-600 dark:text-slate-400">{intro}</p>
+					<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+						{posts.length}{' '}{t('count.posts')}
+					</p>
+				</header>
+				<PostList posts={posts} lang={lang} />
+			</div>
+		</div>
+	</main>
+</Base>

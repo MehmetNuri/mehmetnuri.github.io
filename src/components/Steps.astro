@@ -1,0 +1,63 @@
+---
+// Adım adım rehber (MDX içinde). Sıralı bir liste sar:
+//   <Steps>
+//   1. İlk adımı yap.
+//   2. Sonra şunu çalıştır:
+//      ```bash
+//      pnpm install
+//      ```
+//   3. Bitti.
+//   </Steps>
+// Numaralar CSS sayacıyla çizilir; dikey çizgiyle bir zaman çizelgesi görünümü verir.
+---
+
+<div class="steps">
+	<slot />
+</div>
+
+<style is:global>
+	.steps > ol {
+		counter-reset: step;
+		list-style: none;
+		margin: 1.5rem 0;
+		padding-left: 0;
+	}
+	.steps > ol > li {
+		position: relative;
+		counter-increment: step;
+		margin-left: 0.95rem;
+		padding-left: 2.25rem;
+		padding-bottom: 1.5rem;
+		border-left: 1px solid rgb(226 232 240);
+	}
+	[data-theme='dark'] .steps > ol > li {
+		border-left-color: rgb(30 41 59);
+	}
+	.steps > ol > li:last-child {
+		border-left-color: transparent;
+		padding-bottom: 0;
+	}
+	.steps > ol > li::before {
+		content: counter(step);
+		position: absolute;
+		left: -0.95rem;
+		top: -0.15rem;
+		display: grid;
+		place-items: center;
+		width: 1.9rem;
+		height: 1.9rem;
+		border-radius: 9999px;
+		background: var(--color-brand-500);
+		color: #fff;
+		font-size: 0.8rem;
+		font-weight: 700;
+		font-variant-numeric: tabular-nums;
+	}
+	/* İlk öğenin üst boşluğunu sıfırla */
+	.steps > ol > li > :first-child {
+		margin-top: 0;
+	}
+	.steps > ol > li > :last-child {
+		margin-bottom: 0;
+	}
+</style>

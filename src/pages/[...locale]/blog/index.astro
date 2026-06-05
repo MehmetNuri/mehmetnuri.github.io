@@ -1,0 +1,200 @@
+---
+import type { Page } from 'astro';
+import { Image } from 'astro:assets';
+import Base from '../../../layouts/Base.astro';
+import Sidebar from '../../../components/Sidebar.astro';
+import PostList from '../../../components/PostList.astro';
+import Pager from '../../../components/Pager.astro';
+import Newsletter from '../../../components/Newsletter.astro';
+import FormattedDate from '../../../components/FormattedDate.astro';
+import { Badge } from '../../../components/starwind/badge';
+import { getPostsByLocale, getTags, postSlug, readingMinutes } from '../../../lib/utils';
+import { blogSchema } from '../../../lib/seo';
+import { SITE_TITLE } from '../../../consts';
+import {
+	locales,
+	type Locale,
+	defaultLocale,
+	localizePath,
+	useTranslations,
+	formatReadingTime,
+} from '../../../i18n/ui';
+
+export const PAGE_SIZE = 8;
+
+export function getStaticPaths() {
+	return locales.map((lang) => ({
+		params: { locale: lang === defaultLocale ? undefined : lang },
+		props: { lang },
+	}));
+}
+
+const { lang } = Astro.props as { lang: Locale };
+const t = useTranslations(lang);
+const en = lang === 'en';
+
+const allPosts = await getPostsByLocale(lang);
+const pagePosts = allPosts.slice(0, PAGE_SIZE);
+const featured = pagePosts[0] ?? null;
+const gridPosts = pagePosts.slice(1);
+const filterTags = getTags(gridPosts);
+const lastPage = Math.max(1, Math.ceil(allPosts.length / PAGE_SIZE));
+const base = localizePath(lang, '/blog');
+
+const siteUrl = Astro.site!.href;
+const blogUrl = new URL(base, Astro.site).href;
+const jsonLd = blogSchema(
+	siteUrl,
+	blogUrl,
+	en ? 'en-US' : 'tr-TR',
+	allPosts.slice(0, 20).map((p) => ({
+		url: new URL(localizePath(lang, `/blog/${postSlug(p)}`), Astro.site).href,
+		title: p.data.title,
+		datePublished: p.data.pubDate.toISOString(),
+	})),
+);
+const page = {
+	currentPage: 1,
+	lastPage,
+	size: PAGE_SIZE,
+	total: allPosts.length,
+	url: { current: base, prev: undefined, next: lastPage > 1 ? `${base}/page/2` : undefined },
+} as unknown as Page;
+---
+
+<Base title={`${t('blog.title')} — ${SITE_TITLE}`} description={t('blog.subtitle')} lang={lang} jsonLd={jsonLd}>
+	<main class="mx-auto w-full max-w-6xl flex-1 px-4 py-12 sm:px-6">
+		<div class="grid gap-10 lg:grid-cols-[260px_1fr]">
+			<Sidebar lang={lang} />
+			<div class="min-w-0">
+				<header class="mb-6">
+					<h1 class="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
+						{t('blog.title')}
+					</h1>
+					<p class="mt-2 text-slate-600 dark:text-slate-400">{t('blog.subtitle')}</p>
+				</header>
+
+				{
+					allPosts.length === 0 ? (
+						<p class="text-slate-500 dark:text-slate-400">{t('blog.empty')}</p>
+					) : (
+						<>
+							{/* Öne çıkan yazı */}
+							{featured && (
+								<a
+									href={localizePath(lang, `/blog/${postSlug(featured)}`)}
+									class="group surface card-hover mb-10 grid overflow-hidden sm:grid-cols-2"
+									data-reveal
+								>
+									{featured.data.heroImage && (
+										<div class="aspect-[16/10] overflow-hidden sm:aspect-auto">
+											<Image
+												src={featured.data.heroImage}
+												width={760}
+												height={480}
+												alt=""
+												class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+											/>
+										</div>
+									)}
+									<div class="flex flex-col justify-center p-6 sm:p-8">
+										<div class="mb-2 flex flex-wrap items-center gap-2 text-xs">
+											<span class="rounded-full bg-brand-500/10 px-2 py-0.5 font-medium text-brand-600 dark:text-brand-400">
+												{en ? 'Featured' : 'Öne çıkan'}
+											</span>
+											<time class="font-mono text-slate-500 dark:text-slate-400">
+												<FormattedDate date={featured.data.pubDate} lang={lang} />
+											</time>
+											<span class="text-slate-400">·</span>
+											<span class="text-slate-500 dark:text-slate-400">
+												{formatReadingTime(readingMinutes(featured.body), lang)}
+											</span>
+										</div>
+										<h2 class="text-2xl font-bold text-slate-900 transition group-hover:text-brand-600 dark:text-white dark:group-hover:text-brand-400">
+											{featured.data.title}
+										</h2>
+										{featured.data.description && (
+											<p class="mt-2 text-slate-600 dark:text-slate-400">
+												{featured.data.description}
+											</p>
+										)}
+									</div>
+								</a>
+							)}
+
+							{/* Etiket filtresi */}
+							{filterTags.length > 0 && (
+								<div class="mb-6 flex flex-wrap gap-2" data-reveal>
+									<button class="chip chip-active" data-filter="all" type="button">
+										{en ? 'All' : 'Tümü'}
+									</button>
+									{filterTags.map((tag) => (
+										<button class="chip" data-filter={tag.name} type="button">
+											#{tag.name}
+										</button>
+									))}
+								</div>
+							)}
+
+							{gridPosts.length > 0 && <PostList posts={gridPosts} lang={lang} />}
+							<Pager page={page} base={base} lang={lang} />
+							<div class="mt-12">
+								<Newsletter lang={lang} />
+							</div>
+						</>
+					)
+				}
+			</div>
+		</div>
+	</main>
+</Base>
+
+<script is:inline>
+	(function () {
+		const chips = document.querySelectorAll('.chip');
+		const posts = document.querySelectorAll('[data-post]');
+		if (!chips.length) return;
+		chips.forEach((chip) => {
+			chip.addEventListener('click', () => {
+				const f = chip.getAttribute('data-filter');
+				chips.forEach((c) => c.classList.remove('chip-active'));
+				chip.classList.add('chip-active');
+				posts.forEach((p) => {
+					const tags = (p.getAttribute('data-tags') || '').split(' ');
+					p.hidden = !(f === 'all' || tags.includes(f));
+				});
+			});
+		});
+	})();
+</script>
+
+<style>
+	.chip {
+		border-radius: 9999px;
+		border: 1px solid rgb(226 232 240);
+		padding: 0.35rem 0.8rem;
+		font-size: 0.85rem;
+		font-weight: 500;
+		color: rgb(71 85 105);
+		cursor: pointer;
+		transition: all 0.15s ease;
+	}
+	.chip:hover {
+		border-color: var(--color-brand-500);
+		color: var(--color-brand-600);
+	}
+	.chip-active {
+		background: var(--color-brand-600);
+		border-color: var(--color-brand-600);
+		color: #fff;
+	}
+	:global([data-theme='dark']) .chip {
+		border-color: rgb(30 41 59);
+		color: rgb(148 163 184);
+	}
+	:global([data-theme='dark']) .chip-active {
+		background: var(--color-brand-500);
+		border-color: var(--color-brand-500);
+		color: #fff;
+	}
+</style>

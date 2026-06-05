@@ -1,0 +1,54 @@
+---
+import Base from '../../../layouts/Base.astro';
+import FormattedDate from '../../../components/FormattedDate.astro';
+import { getNotesByLocale, noteSlug } from '../../../lib/utils';
+import { SITE_TITLE } from '../../../consts';
+import { locales, type Locale, defaultLocale, localizePath, useTranslations } from '../../../i18n/ui';
+
+export function getStaticPaths() {
+	return locales.map((lang) => ({
+		params: { locale: lang === defaultLocale ? undefined : lang },
+		props: { lang },
+	}));
+}
+
+const { lang } = Astro.props as { lang: Locale };
+const t = useTranslations(lang);
+const notes = await getNotesByLocale(lang);
+---
+
+<Base title={`${t('notes.title')} — ${SITE_TITLE}`} description={t('notes.subtitle')} lang={lang}>
+	<main class="mx-auto w-full max-w-2xl flex-1 px-4 py-16 sm:px-6">
+		<header class="mb-10" data-reveal>
+			<h1 class="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">{t('notes.title')}</h1>
+			<p class="mt-2 text-lg text-slate-600 dark:text-slate-400">{t('notes.subtitle')}</p>
+		</header>
+
+		{
+			notes.length === 0 ? (
+				<p class="text-slate-500 dark:text-slate-400">{t('notes.empty')}</p>
+			) : (
+				<ul class="space-y-4">
+					{notes.map((note) => (
+						<li class="surface card-hover p-5" data-reveal>
+							<a href={localizePath(lang, `/notes/${noteSlug(note)}`)} class="group block">
+								<div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+									<FormattedDate date={note.data.pubDate} lang={lang} />
+									{note.data.tags.length > 0 && (
+										<span class="text-slate-400">· {note.data.tags.map((x) => `#${x}`).join(' ')}</span>
+									)}
+								</div>
+								<h2 class="mt-1.5 font-semibold text-slate-900 transition group-hover:text-brand-600 dark:text-white dark:group-hover:text-brand-400">
+									{note.data.title}
+								</h2>
+								{note.data.description && (
+									<p class="mt-1 text-sm text-slate-600 dark:text-slate-400">{note.data.description}</p>
+								)}
+							</a>
+						</li>
+					))}
+				</ul>
+			)
+		}
+	</main>
+</Base>

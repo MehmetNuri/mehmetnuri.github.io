@@ -1,0 +1,76 @@
+---
+import Pagination from '@philnash/astro-pagination';
+import type { Page } from 'astro';
+import { type Locale, useTranslations } from '../i18n/ui';
+
+interface Props {
+	page: Page;
+	base: string; // örn. '/blog' veya '/en/blog'
+	lang: Locale;
+}
+
+const { page, base, lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+{
+	page.lastPage > 1 && (
+		<div class="pager mt-12">
+			<Pagination
+				page={page}
+				urlPattern={`${base}/page/{}`}
+				firstPageUrl={base}
+				previousLabel={t('pager.prev')}
+				nextLabel={t('pager.next')}
+			/>
+		</div>
+	)
+}
+
+<style>
+	.pager :global(nav ul) {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 0.4rem;
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+	.pager :global(a),
+	.pager :global(span) {
+		display: inline-flex;
+		min-width: 2.4rem;
+		height: 2.4rem;
+		align-items: center;
+		justify-content: center;
+		padding: 0 0.7rem;
+		border-radius: 0.7rem;
+		font-size: 0.9rem;
+		font-weight: 500;
+		text-decoration: none;
+		border: 1px solid rgb(226 232 240);
+		color: rgb(71 85 105);
+		transition:
+			border-color 0.15s ease,
+			color 0.15s ease,
+			background 0.15s ease;
+	}
+	.pager :global(a:hover) {
+		border-color: var(--color-brand-500);
+		color: var(--color-brand-600);
+	}
+	.pager :global([aria-current='page']) {
+		background: var(--color-brand-500);
+		border-color: var(--color-brand-500);
+		color: #fff;
+	}
+	:global([data-theme='dark']) .pager :global(a),
+	:global([data-theme='dark']) .pager :global(span) {
+		border-color: rgb(30 41 59);
+		color: rgb(148 163 184);
+	}
+	:global([data-theme='dark']) .pager :global([aria-current='page']) {
+		color: #fff;
+	}
+</style>
