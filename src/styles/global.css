@@ -267,3 +267,85 @@
 		backdrop-filter: none !important;
 	}
 }
+
+/* ── Mermaid: tema-duyarlı, okunur diyagramlar ───────────────────────────
+   astro-mermaid'in tema seçimi sayfa temasıyla her zaman uyuşmuyor (örn. açık
+   temada koyu kutu + açık düğümler → açıklama metni okunmuyor). Bu yüzden Mermaid'in
+   temasına güvenmek yerine arka planı, düğüm dolgu/kenar, metin, çizgi ve okları
+   doğrudan sayfa temasına (data-theme) bağlıyoruz. */
+:root {
+	--mm-line: #475569; /* çizgi/ok — slate-600 */
+	--mm-node-fill: #eef2ff; /* düğüm dolgu — brand-50 */
+	--mm-node-stroke: #6366f1; /* düğüm kenar — brand-500 */
+	--mm-text: #0f172a; /* düğüm metni — slate-900 */
+	--mm-note: #475569; /* açıklama metni — slate-600 */
+}
+[data-theme='dark'] {
+	--mm-line: #94a3b8; /* slate-400 */
+	--mm-node-fill: #1e293b; /* slate-800 */
+	--mm-node-stroke: #818cf8; /* brand-400 */
+	--mm-text: #e2e8f0; /* slate-200 */
+	--mm-note: #cbd5e1; /* slate-300 */
+}
+
+/* Diyagram kutusu prose'un koyu <pre> arka planını ve SVG arka planını almasın */
+pre.mermaid,
+.prose pre.mermaid,
+pre.mermaid svg {
+	background: transparent !important;
+}
+
+/* Düğüm şekilleri (açıklama/note hariç): dolgu + kenar */
+pre.mermaid svg g.node:not(.note) :is(rect, circle, ellipse, polygon, path) {
+	fill: var(--mm-node-fill) !important;
+	stroke: var(--mm-node-stroke) !important;
+}
+/* Düğüm metni (note hariç) */
+pre.mermaid svg g.node:not(.note) :is(.nodeLabel, .label, span, p),
+pre.mermaid svg g.node:not(.note) foreignObject div {
+	color: var(--mm-text) !important;
+}
+pre.mermaid svg g.node:not(.note) text {
+	fill: var(--mm-text) !important;
+}
+
+/* Kenar (edge) çizgileri — Mermaid v9–v11 sınıf adlarını birlikte hedefle */
+pre.mermaid svg .edgePaths path,
+pre.mermaid svg path.flowchart-link,
+pre.mermaid svg .edgePath path.path,
+pre.mermaid svg .relation {
+	stroke: var(--mm-line) !important;
+}
+/* Ok uçları (arrowhead marker'ları) */
+pre.mermaid svg marker path,
+pre.mermaid svg .arrowheadPath,
+pre.mermaid svg .marker {
+	fill: var(--mm-line) !important;
+	stroke: var(--mm-line) !important;
+}
+/* Görünmez bağlantılar (~~~, yalnızca yerleşim için) görünür olmasın */
+pre.mermaid svg .edge-thickness-invisible {
+	stroke: transparent !important;
+	stroke-width: 0 !important;
+}
+
+/* Kenar etiketleri (örn. Evet/Hayır) — arka plansız, her temada okunur */
+pre.mermaid svg .edgeLabel,
+pre.mermaid svg .edgeLabel :is(p, span, div) {
+	color: var(--mm-text) !important;
+	fill: var(--mm-text) !important;
+	background: transparent !important;
+}
+pre.mermaid svg .edgeLabel rect {
+	fill: transparent !important;
+	opacity: 0 !important;
+}
+
+/* Şekil sözlüğü: açıklama (note) düğümleri düz metin gibi, her temada okunur */
+pre.mermaid svg g.node.note :is(.nodeLabel, .label, span, p),
+pre.mermaid svg g.node.note foreignObject div {
+	color: var(--mm-note) !important;
+}
+pre.mermaid svg g.node.note text {
+	fill: var(--mm-note) !important;
+}
