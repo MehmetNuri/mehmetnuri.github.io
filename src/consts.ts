@@ -36,12 +36,13 @@ export const AUTHOR_KNOWS_ABOUT: string[] = [
 	'Java',
 	'Spring',
 	'Spring Boot',
+	'Quarkus',
 	'JVM',
 	'Sistem Tasarımı',
 	'TypeScript',
 	'Astro',
-	'.NET',
-	'Docker',
+	'Podman',
+	'Linux',
 	'Web',
 ];
 
