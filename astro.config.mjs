@@ -72,7 +72,37 @@ export default defineConfig({
 				return item;
 			},
 		}),
-		robotsTxt(),
+		// robots.txt — AI arama/indeksleme botlarına açık izin (GEO).
+		// '*' zaten hepsini kapsar; açık satırlar net bir "tarayın ve referans alın" sinyalidir.
+		robotsTxt({
+			sitemap: true,
+			policy: [
+				{ userAgent: '*', allow: '/' },
+				// OpenAI / ChatGPT
+				{ userAgent: 'GPTBot', allow: '/' },
+				{ userAgent: 'OAI-SearchBot', allow: '/' },
+				{ userAgent: 'ChatGPT-User', allow: '/' },
+				// Anthropic / Claude
+				{ userAgent: 'ClaudeBot', allow: '/' },
+				{ userAgent: 'Claude-SearchBot', allow: '/' },
+				{ userAgent: 'Claude-User', allow: '/' },
+				// Perplexity
+				{ userAgent: 'PerplexityBot', allow: '/' },
+				{ userAgent: 'Perplexity-User', allow: '/' },
+				// Google (AI Overviews / Gemini) & diğer Google botları
+				{ userAgent: 'Google-Extended', allow: '/' },
+				{ userAgent: 'GoogleOther', allow: '/' },
+				// Apple, Amazon, Meta
+				{ userAgent: 'Applebot-Extended', allow: '/' },
+				{ userAgent: 'Amazonbot', allow: '/' },
+				{ userAgent: 'Meta-ExternalAgent', allow: '/' },
+				// Common Crawl (birçok LLM'i besler), Cohere, DuckDuckGo AI, You.com
+				{ userAgent: 'CCBot', allow: '/' },
+				{ userAgent: 'cohere-ai', allow: '/' },
+				{ userAgent: 'DuckAssistBot', allow: '/' },
+				{ userAgent: 'YouBot', allow: '/' },
+			],
+		}),
 		// Çıktıyı (HTML/CSS/JS/SVG) sıkıştır.
 		// Görseller Astro/Image ile zaten optimize edildiği için tekrar sıkıştırma.
 		compress({ Image: false }),
