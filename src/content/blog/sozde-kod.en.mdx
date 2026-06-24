@@ -1,0 +1,363 @@
+---
+title: 'Algorithms: Pseudocode'
+description: 'What is pseudocode and how do you write it? The bridge from flowchart to code: assignment, conditionals, loops, comparison and logic operators, plus a short history.'
+slug: 'pseudocode'
+pubDate: '2026-06-24'
+heroImage: '../../assets/sozde-kod.webp'
+category: 'Programming Basics'
+tags: ['pseudocode', 'algorithm', 'programming-basics', 'flowchart', 'conditionals']
+series: 'Algorithms'
+seriesOrder: 3
+tech: true
+faq:
+  - q: 'What is pseudocode?'
+    a: 'Pseudocode is a way of writing an algorithm in a structured but human-readable form, without being bound by the strict rules of any programming language. It is the stop between a flowchart and real code: it clarifies the idea and then translates almost line-for-line into actual code.'
+  - q: 'Does pseudocode have a fixed standard or syntax?'
+    a: 'No. There is no single, universally agreed standard for pseudocode. What matters is being consistent and readable: pick a few conventions that clearly show assignment, conditionals and loops, and use them the same way from start to finish.'
+  - q: 'Which logic and comparison words does pseudocode use?'
+    a: 'For comparison: = (equal), ≠ (not equal), > (greater), < (less), ≥ (greater or equal) and ≤ (less or equal). To combine conditions there are logical operators: AND (both conditions true), OR (at least one true) and NOT (inverts a condition).'
+  - q: 'Where does the word "algorithm" come from?'
+    a: 'It comes from the Latinised name "Algoritmi" of the 9th-century Persian mathematician Muhammad ibn Musa al-Khwārizmī, who worked at the House of Wisdom in Baghdad. The same scholar’s work "al-jabr" is also the root of the word "algebra".'
+  - q: 'Why use pseudocode?'
+    a: 'Because it lets you focus on the logic of the solution before the syntax of a language (semicolons, brackets, types…). You shape the idea quickly, share it with teammates regardless of language, and catch mistakes before writing any code.'
+---
+
+import Callout from '../../components/Callout.astro';
+import Steps from '../../components/Steps.astro';
+
+[In the first post](/en/blog/what-is-an-algorithm) we described an algorithm **in words**,
+[in the second](/en/blog/flowcharts) we drew it with **boxes and arrows**. Now one step
+remains: putting the same logic into a written form that can be **translated almost
+line-for-line into real code.** That form is called **pseudocode**.
+
+A flowchart is great for *seeing* an idea; but drawing a long algorithm box by box gets
+tiring. This is exactly where pseudocode fits: it keeps the clarity of the diagram, but
+it is much faster to write and to turn into code later.
+
+> **Pseudocode** is a way of writing an algorithm without being bound by the strict
+> rules of any programming language — close to human language but with a **clear
+> structure.** "Pseudo" (meaning "as if") because it *resembles* code but cannot be run;
+> its purpose is for a human to read and to clarify the idea.
+
+<Callout type="note" title="Where are we in this series?">
+This is the third post in the **Algorithms** series. In the first we covered "what is an
+algorithm", in the second "flowcharts". We are still not writing a single line of real
+code here; but pseudocode is the last plank of the bridge to code. At the end we will
+write a full example that brings all the pieces together.
+</Callout>
+
+## What is pseudocode?
+
+The name sounds technical, but the idea is plain. Take the same task — "count from 1 to
+5" — expressed three ways:
+
+- **Plain sentence:** "Start at 1, print and add one each time until you pass 5."
+- **Flowchart:** boxes, a decision and an arrow that loops back.
+- **Pseudocode:** as below, line by line and indented.
+
+```text title="Count from 1 to 5 — pseudocode" showLineNumbers=false
+n ← 1
+WHILE n ≤ 5 DO
+    PRINT n
+    n ← n + 1
+ENDWHILE
+```
+
+All three are the same algorithm. Pseudocode reads almost like the plain sentence but is
+as structured as real code — it sits right in the middle of the two.
+
+## First, a short history
+
+Since this series explains the algorithm from the very beginning, it helps to know where
+the words come from. Because this story also explains *why* pseudocode exists.
+
+<Callout type="note" title="'Algorithm' is a person's name">
+The word "algorithm" comes from **Muhammad ibn Musa al-Khwārizmī**, a 9th-century Persian
+mathematician who worked at the **House of Wisdom** in Baghdad. In his works translated
+into Europe his name became *Algoritmi* in Latin; the meaning "step-by-step method of
+calculation" grew from there.
+
+The same scholar's book *Al-jabr wa'l-muqabala* gave its name to the field we today call
+**algebra** ("al-jabr"). So a single person stands behind both "algorithm" and "algebra".
+Al-Khwārizmī is also the one who introduced the **decimal number system** (Hindu-Arabic
+numerals) to the Western world.
+</Callout>
+
+So where did pseudocode come from? For centuries algorithms were written in plain prose
+(like a recipe). But when computers arrived in the mid-20th century, a problem appeared:
+plain language was too vague, while real code was too rigid and machine-specific. In
+between, there was a need for a form **a human could easily read and reason about.**
+
+In the 1950s–60s the **structured programming** movement and the **ALGOL** language (its
+name literally comes from *ALGOrithmic Language*) opened the way to expressing algorithms
+cleanly, in blocks. Donald Knuth's famous *The Art of Computer Programming* also described
+algorithms in an English-like, step-by-step style. The pseudocode we use today is the
+simplified descendant of this tradition.
+
+## What is pseudocode good for?
+
+If it looks like code, why not write code directly? Because pseudocode solves a few real
+problems:
+
+- **You focus on the logic.** Semicolons, brackets, variable types and other language
+  details don't distract you; you deal only with "what should happen".
+- **It is language-independent.** Anyone can read and apply the same pseudocode, whatever
+  language they use. It is a common team language.
+- **You catch mistakes early.** You notice a missing step or a wrong condition on paper,
+  before writing any code.
+- **It is easy to translate.** Well-written pseudocode maps almost line-for-line to real
+  code.
+
+## The "grammar" of pseudocode
+
+The most important thing to know here:
+
+<Callout type="important" title="There is no single correct syntax">
+Pseudocode has **no official, universally agreed standard.** Books, teachers and teams
+use their own small variations. What matters is **consistency**: pick a few rules and
+apply them the same way throughout. The following are the most common ones.
+</Callout>
+
+### 1) Assignment — putting a value into a box
+
+Giving a value to a variable; usually a left arrow (`←`):
+
+```text title="Assignment" showLineNumbers=false
+age   ← 18
+name  ← "Ada"
+total ← a + b
+```
+
+### 2) Input / Output — taking data in and giving a result out
+
+`READ` (input) and `PRINT` (output):
+
+```text title="Input / Output" showLineNumbers=false
+READ userName
+PRINT "Hello, " + userName
+```
+
+### 3) Conditional — branching on a decision
+
+`IF … THEN`, optionally `ELSE`, and `ENDIF` to close the block:
+
+```text title="Conditional" showLineNumbers=false
+IF score ≥ 50 THEN
+    PRINT "Pass"
+ELSE
+    PRINT "Fail"
+ENDIF
+```
+
+### 4) Loop — repeating
+
+A block that runs while a condition is true: `WHILE … DO … ENDWHILE`:
+
+```text title="Loop" showLineNumbers=false
+money ← 100
+WHILE money > 0 DO
+    money ← money - 10
+ENDWHILE
+```
+
+### 5) Comparison operators
+
+They compare two values; the result is "true" or "false". You use them inside conditions:
+
+| Pseudocode | Reads as | Example |
+| :--------: | -------- | ------- |
+| `=`  | equal to            | `age = 18` |
+| `≠`  | not equal to        | `answer ≠ "yes"` |
+| `>`  | greater than        | `score > 90` |
+| `<`  | less than           | `stock < 5` |
+| `≥`  | greater than or equal | `age ≥ 18` |
+| `≤`  | less than or equal  | `n ≤ 10` |
+
+### 6) Logical operators
+
+They combine several conditions, or invert one:
+
+| Pseudocode | Meaning | Example |
+| :--------: | ------- | ------- |
+| `AND` | true if **both** conditions are true | `age ≥ 18 AND citizen` |
+| `OR`  | true if **at least one** is true | `saturday OR sunday` |
+| `NOT` | **inverts** a condition | `NOT loggedIn` |
+
+For example, a voting rule fits on a single line:
+
+```text title="Logical operator — example" showLineNumbers=false
+IF age ≥ 18 AND citizen THEN
+    PRINT "Can vote"
+ENDIF
+```
+
+### 7) Indentation — shows what is inside what
+
+You indent the lines *inside* an `IF` or a loop. This is the written counterpart of the
+"path inside the box" in a flowchart. Closers like `ENDIF` and `ENDWHILE` also make it
+clear exactly where a block ends.
+
+<Callout type="tip" title="The words can vary">
+Pseudocode is for humans, so there is no fixed keyword set. Some books write
+`WHILE/ENDWHILE`, some rely on indentation alone, some borrow `{ }` from code. We use the
+common English keywords here (`IF/THEN/ELSE`, `WHILE/DO`, `AND/OR/NOT`, `MOD`, `PRINT`,
+`READ`). The rule isn't *which* words — it's to pick a set and stay consistent.
+</Callout>
+
+## Translating a flowchart into pseudocode
+
+The nice part: you can turn the diagrams from the [second post](/en/blog/flowcharts) into
+pseudocode almost mechanically. Let's recall the same three examples.
+
+### Even or odd? (decision)
+
+The decision diamond in the diagram becomes an `IF` in pseudocode:
+
+```text title="Even / odd — pseudocode" showLineNumbers=false
+READ n
+IF n MOD 2 = 0 THEN
+    PRINT "Even"
+ELSE
+    PRINT "Odd"
+ENDIF
+```
+
+> `MOD` gives the remainder of a division (5 MOD 2 = 1). If the remainder is 0, the number
+> divides exactly, i.e. it is even.
+
+### Count from 1 to 5 (loop)
+
+The arrow that loops back in the diagram turns into a loop block:
+
+```text title="Count from 1 to 5 — pseudocode" showLineNumbers=false
+n ← 1
+WHILE n ≤ 5 DO
+    PRINT n
+    n ← n + 1
+ENDWHILE
+```
+
+### Password with 3 attempts (nested structure)
+
+Even the most complex example looks simple. A loop, a decision inside it, and a counter:
+
+```text title="Password with 3 attempts — pseudocode" showLineNumbers=false
+attempts ← 0
+WHILE attempts < 3 DO
+    READ password
+    IF password is correct THEN
+        PRINT "Access granted"
+        STOP
+    ELSE
+        attempts ← attempts + 1
+    ENDIF
+ENDWHILE
+IF attempts = 3 THEN
+    PRINT "Account locked"
+ENDIF
+```
+
+As you can see, every shape in the diagram maps to a line or a block in pseudocode. A
+flowchart and pseudocode are two faces of the same algorithm.
+
+## Putting it all together: a full example
+
+Now let's combine everything we've learned into one algorithm. The problem: **find the
+sum of the even numbers from 1 to 10.** Here assignment, loop, conditional, comparison and
+`MOD` all work together:
+
+```text title="Sum of even numbers from 1 to 10" showLineNumbers=false
+START
+    n     ← 0
+    total ← 0
+    WHILE n ≤ 10 DO
+        IF n MOD 2 = 0 THEN
+            total ← total + n
+        ENDIF
+        n ← n + 1
+    ENDWHILE
+    PRINT total
+END
+```
+
+Read it line by line: `n` goes from 0 to 10; on each round it asks "is it even?"
+(`n MOD 2 = 0`), and if so adds it to `total`. When the loop ends, the result is printed.
+A task that looks complex was solved by nesting five simple building blocks. **This is what
+the whole series has been about:** break the problem into steps, write the steps in clear
+words.
+
+<Callout type="note" title="The next step: real code">
+This pseudocode is now so clear that translating it into a programming language (Java,
+Python, C#…) is almost line-for-line. `IF` → `if`, `PRINT` → `print`, `MOD` → `%`… Once
+you get the logic right, you can carry it into any language you like.
+</Callout>
+
+## Common mistakes
+
+<Callout type="caution" title="Watch out for these traps">
+- **Writing too much "code":** Pseudocode shouldn't carry all the details of a real
+  language (library names, type declarations). The goal is clarity; leave the details to
+  the code.
+- **Writing too "vaguely":** A line like "handle the data" is not pseudocode. Each step
+  must be clear enough for a robot to follow.
+- **Neglecting indentation and block closers:** Indentation and `ENDIF` / `ENDWHILE` are
+  the only clue to what is inside which block. If they break, where the `IF` ends becomes
+  unclear.
+- **Being inconsistent:** Using `PRINT` in one place, `SHOW` in another and `print`
+  somewhere else tires the reader. Pick a set of rules and stick to it.
+</Callout>
+
+## Try it yourself
+
+Don't just read on — grab a sheet of paper and a pen. Write the **pseudocode** for the
+problems below (you can also draw the flowchart; both lead to the same place).
+
+### Exercise 1 — Greeting (easy)
+
+> Take the user's name and print "Hello, &lt;name&gt;!" to the screen.
+
+<Callout type="note" title="Hint">
+Two lines are enough: one `READ`, one `PRINT`. Remember assignment and string
+concatenation (`+`).
+</Callout>
+
+### Exercise 2 — Pass or fail (medium)
+
+> Take a student's score. If it is above 85 print "Pass (excellent)", if it is 50 or above
+> print "Pass", otherwise print "Fail".
+
+<Callout type="note" title="Hint">
+You need a chained `IF`. First check `score > 85`, otherwise `score ≥ 50`. Remember the
+[multi-armed decision](/en/blog/flowcharts). The comparison operators (`>`, `≥`) are
+exactly what you need here.
+</Callout>
+
+### Exercise 3 — Voting right (logical operator)
+
+> A person can vote if they are **older than 18 AND** a citizen; print "Can vote",
+> otherwise "Cannot vote".
+
+<Callout type="note" title="Hint">
+A single `IF` with an `AND` operator is enough: `IF age ≥ 18 AND citizen THEN …`. Note that
+both conditions must be true at the same time — if even one is false, the result is
+"cannot vote".
+</Callout>
+
+Read your pseudocode aloud to your "robot friend": *Is every step clear? Are the
+indentation and block closers right? Does the loop end somewhere?* If you can do that,
+you're ready to translate it into code.
+
+## Summary
+
+<Callout type="tip" title="Keep in your pocket">
+- **Pseudocode** is the stop between a flowchart and real code: close to human language
+  but structured.
+- It has **no official standard**; what matters is being consistent and readable.
+- Core building blocks: **assignment** (`←`), **input/output** (`READ`/`PRINT`),
+  **conditional** (`IF … ENDIF`), **loop** (`WHILE … ENDWHILE`) and **indentation**.
+- With **comparison** (`=`, `≠`, `>`, `<`, `≥`, `≤`) and **logical** (`AND`, `OR`, `NOT`)
+  operators you build and combine conditions.
+- Well-written pseudocode translates **almost line-for-line** into real code.
+- The word "algorithm" comes from the 9th-century scholar **al-Khwārizmī**; pseudocode
+  comes from the structured-programming and **ALGOL** tradition.
+</Callout>

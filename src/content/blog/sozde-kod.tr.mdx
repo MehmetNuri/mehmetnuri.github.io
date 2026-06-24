@@ -1,0 +1,367 @@
+---
+title: 'Algoritma: Sözde Kod'
+description: 'Sözde kod (pseudocode) nedir, nasıl yazılır? Akış şemasını koda çeviren ara dil: atama, koşul, döngü, karşılaştırma ve mantık operatörleri, kısa tarihçesiyle.'
+pubDate: '2026-06-24'
+heroImage: '../../assets/sozde-kod.webp'
+category: 'Programlama Temelleri'
+tags: ['sözde-kod', 'pseudocode', 'algoritma', 'programlama-temelleri', 'akış-şeması']
+series: 'Algoritmalar'
+seriesOrder: 3
+tech: true
+faq:
+  - q: 'Sözde kod (pseudocode) nedir?'
+    a: 'Sözde kod, bir algoritmayı herhangi bir programlama dilinin katı kurallarına takılmadan, insan diline yakın ama yapısı belli bir biçimde yazmaktır. Akış şeması ile gerçek kod arasındaki ara duraktır: fikri netleştirir ve sonra neredeyse birebir gerçek koda çevrilir.'
+  - q: 'Sözde kodun belirli bir standardı veya sözdizimi var mı?'
+    a: 'Hayır. Sözde kodun resmî, herkesçe kabul edilmiş tek bir standardı yoktur. Önemli olan tutarlı ve okunabilir olmasıdır: atama, koşul ve döngüleri açıkça gösteren birkaç kuralı kendine seçip baştan sona aynı şekilde kullanırsın.'
+  - q: 'Sözde kodda hangi mantık ve karşılaştırma kelimeleri kullanılır?'
+    a: 'Karşılaştırma için = (eşit), ≠ (eşit değil), > (büyük), < (küçük), ≥ (büyük veya eşit) ve ≤ (küçük veya eşit) kullanılır. Koşulları birleştirmek için ise mantıksal operatörler vardır: VE (iki koşul da doğruysa), VEYA (en az biri doğruysa) ve DEĞİL (koşulu tersine çevirir).'
+  - q: '"Algoritma" kelimesi nereden gelir?'
+    a: 'Kelime, 9. yüzyılda Bağdat’daki Bilgelik Evi’nde çalışan Persli matematikçi Muhammed bin Musa el-Harezmî’nin (al-Khwārizmī) adının Latinceleşmiş hâli "Algoritmi"den gelir. Aynı âlimin "el-cebir" (al-jabr) eseri de "cebir/algebra" kelimesine kaynaklık eder.'
+  - q: 'Sözde kod neden kullanılır?'
+    a: 'Çünkü bir dilin söz diziminden (noktalı virgül, parantez, tip…) önce çözümün mantığına odaklanmanı sağlar. Fikri hızlıca kurar, ekip arkadaşlarınla dil fark etmeksizin paylaşır ve hataları daha koda dökmeden görürsün.'
+---
+
+import Callout from '../../components/Callout.astro';
+import Steps from '../../components/Steps.astro';
+
+[İlk yazıda](/blog/algoritma-nedir) algoritmayı **kelimelerle** anlattık,
+[ikinci yazıda](/blog/akis-semalari) onu **kutular ve oklarla** çizdik. Şimdi son bir
+adım kaldı: aynı mantığı, **gerçek koda neredeyse birebir çevrilebilecek** yazılı bir
+biçime dökmek. Bu biçimin adı **sözde kod**.
+
+Akış şeması bir fikri *görmek* için harikadır; ama uzun bir algoritmayı kutu kutu
+çizmek yorucu olur. İşte sözde kod tam buraya oturur: şemanın netliğini korur, ama
+yazması ve sonradan koda çevirmesi çok daha hızlıdır.
+
+<Callout type="note" title="Bu seride neredeyiz?">
+Bu, **Algoritmalar** serisinin üçüncü yazısı. İlkinde "algoritma nedir"i, ikincisinde
+"akış şemaları"nı gördük. Burada hâlâ tek satır gerçek kod yazmıyoruz; ama sözde kod,
+koda giden köprünün son tahtası. Sonunda bütün parçaları birleştiren tam bir örnek
+yazacağız.
+</Callout>
+
+## Sözde kod nedir?
+
+İsmi kulağa teknik gelse de fikir çok yalın:
+
+> **Sözde kod (pseudocode)**, bir algoritmayı herhangi bir programlama dilinin katı
+> kurallarına takılmadan; insan diline yakın ama **yapısı belli** bir biçimde yazmaktır.
+> "Sözde" (yani "-mış gibi") çünkü koda *benzer* ama çalıştırılamaz; amacı insanın
+> okuması ve fikri netleştirmesidir.
+
+Bir kıyas yapalım. Aynı "1'den 5'e kadar say" işini üç biçimde ifade edebiliriz:
+
+- **Düz cümle:** "1'den başla, 5'i geçene kadar her seferinde bir artırıp yaz."
+- **Akış şeması:** kutular, bir karar ve geriye dönen bir ok.
+- **Sözde kod:** aşağıdaki gibi, satır satır ve girintili.
+
+```text title="1'den 5'e say — sözde kod" showLineNumbers=false
+sayı ← 1
+ZAMAN sayı ≤ 5 DOĞRU İKEN
+    YAZ sayı
+    sayı ← sayı + 1
+DÖNGÜ SONU
+```
+
+Üçü de aynı algoritmadır. Sözde kod, "düz cümle" kadar okunur ama "gerçek kod" kadar
+yapılıdır — ikisinin tam ortasında durur.
+
+## Önce kısa bir tarih
+
+Madem bu seri algoritmayı en baştan anlatıyor, kelimelerin nereden geldiğini de
+bilmekte fayda var. Çünkü bu hikâye, "sözde kod" fikrinin neden var olduğunu da
+açıklıyor.
+
+<Callout type="note" title="'Algoritma' bir insanın adıdır">
+"Algoritma" kelimesi, 9. yüzyılda Bağdat'taki **Bilgelik Evi**'nde (Beytü'l-Hikme)
+çalışan Persli matematikçi **Muhammed bin Musa el-Harezmî**'nin (al-Khwārizmī) adından
+gelir. Avrupa'ya çevrilen eserlerinde adı Latinceye *Algoritmi* diye geçti; "adım adım
+hesap yöntemi" anlamı da buradan türedi.
+
+Aynı âlimin *Hisab el-cebir ve'l-mukabele* adlı kitabı ise bugün **"cebir" (algebra)**
+dediğimiz alana adını verdi. Yani tek bir kişi, hem "algoritma" hem "cebir" kelimelerinin
+arkasındaki isim. El-Harezmî ayrıca bugün kullandığımız **ondalık sayı sistemini**
+(Hint-Arap rakamları) de Batı dünyasına tanıtan kişidir.
+</Callout>
+
+Peki "sözde kod" nereden çıktı? Algoritmalar yüzyıllarca düz dille (tarif gibi)
+yazıldı. Ama 20. yüzyılın ortasında bilgisayarlar gelince bir sorun belirdi: düz dil
+fazla bulanık, gerçek kod ise fazla katı ve makineye özeldi. Arada, **insanın kolayca
+okuyup üzerinde düşünebileceği** bir biçime ihtiyaç vardı.
+
+1950–60'larda **yapısal programlama** akımı ve **ALGOL** dili (adı zaten *ALGOrithmic
+Language*'dan gelir) algoritmaları temiz, bloklar hâlinde ifade etmenin yolunu açtı.
+Donald Knuth'un meşhur *The Art of Computer Programming* serisi de algoritmaları
+İngilizceye yakın, adım adım bir üslupla anlattı. İşte bugün kullandığımız sözde kod,
+bu geleneğin sadeleşmiş torunudur.
+
+## Sözde kod ne işe yarar?
+
+Madem koda benziyor, neden doğrudan kod yazmıyoruz? Çünkü sözde kod birkaç gerçek
+sorunu çözer:
+
+- **Mantığa odaklanırsın.** Noktalı virgül, parantez, değişken tipi gibi dil
+  ayrıntıları seni oyalamaz; sadece "ne yapılacağı" ile uğraşırsın.
+- **Dilden bağımsızdır.** Aynı sözde kodu, hangi programlama dilini kullanırsa
+  kullansın herkes okuyup uygulayabilir. Ekip içi ortak dildir.
+- **Hatayı erken görürsün.** Bir adımı atladığını ya da bir koşulu yanlış kurduğunu,
+  daha koda dökmeden, kâğıt üstünde fark edersin.
+- **Koda çevirmesi kolaydır.** İyi yazılmış sözde kod, gerçek koda neredeyse satır
+  satır karşılık gelir.
+
+## Sözde kodun "dil bilgisi"
+
+Burada bilmen gereken en önemli şey şu:
+
+<Callout type="important" title="Tek bir doğru sözdizimi yoktur">
+Sözde kodun **resmî, herkesçe kabul edilmiş tek bir standardı yoktur.** Kitaplar,
+hocalar, ekipler kendi küçük varyasyonlarını kullanır. Önemli olan **tutarlılık**:
+birkaç kural seç ve baştan sona aynı şekilde uygula. Aşağıdakiler en yaygın olanları.
+</Callout>
+
+### 1) Atama — bir değeri bir kutuya koymak
+
+Bir değişkene değer vermektir; genelde sol ok (`←`) kullanılır:
+
+```text title="Atama" showLineNumbers=false
+yaş    ← 18
+isim   ← "Ada"
+toplam ← a + b
+```
+
+### 2) Girdi / Çıktı — veri almak ve sonuç vermek
+
+`OKU` (girdi) ve `YAZ` (çıktı):
+
+```text title="Girdi / Çıktı" showLineNumbers=false
+OKU kullanıcıAdı
+YAZ "Merhaba, " + kullanıcıAdı
+```
+
+### 3) Koşul — bir karara göre dallanmak
+
+`EĞER … İSE`, gerekirse `DEĞİLSE`, ve bloğu kapatan `BİTİREĞER`:
+
+```text title="Koşul" showLineNumbers=false
+EĞER puan ≥ 50 İSE
+    YAZ "Geçti"
+DEĞİLSE
+    YAZ "Kaldı"
+BİTİREĞER
+```
+
+### 4) Döngü — tekrar etmek
+
+Bir koşul doğru olduğu sürece dönen blok: `ZAMAN … DOĞRU İKEN … DÖNGÜ SONU`:
+
+```text title="Döngü" showLineNumbers=false
+para ← 100
+ZAMAN para > 0 DOĞRU İKEN
+    para ← para - 10
+DÖNGÜ SONU
+```
+
+### 5) Karşılaştırma operatörleri
+
+İki değeri kıyaslar; sonuç "doğru" ya da "yanlış" olur. Koşulların içinde bunları
+kullanırsın:
+
+| Sözde kod | Okunuşu | Örnek |
+| :-------: | ------- | ----- |
+| `=`  | eşit mi            | `yaş = 18` |
+| `≠`  | eşit değil mi      | `cevap ≠ "evet"` |
+| `>`  | büyük mü           | `puan > 90` |
+| `<`  | küçük mü           | `stok < 5` |
+| `≥`  | büyük veya eşit mi | `yaş ≥ 18` |
+| `≤`  | küçük veya eşit mi | `sayı ≤ 10` |
+
+### 6) Mantıksal operatörler
+
+Birden fazla koşulu birleştirmeye ya da tersine çevirmeye yararlar:
+
+| Sözde kod | Anlamı | Örnek |
+| :-------: | ------ | ----- |
+| `VE`    | **iki** koşul da doğruysa doğru | `yaş ≥ 18 VE vatandaş` |
+| `VEYA`  | **en az bir** koşul doğruysa doğru | `cumartesi VEYA pazar` |
+| `DEĞİL` | koşulu **tersine** çevirir | `DEĞİL girişYapıldı` |
+
+Örneğin bir oy kullanma kuralını tek satırda kurabiliriz:
+
+```text title="Mantık operatörü — örnek" showLineNumbers=false
+EĞER yaş ≥ 18 VE vatandaş İSE
+    YAZ "Oy kullanabilir"
+BİTİREĞER
+```
+
+### 7) Girinti — neyin neyin içinde olduğunu gösterir
+
+Bir `EĞER`in ya da döngünün *içindeki* satırları içeri kaydırırsın. Bu, akış
+şemasındaki "kutunun içindeki yol"un yazıdaki karşılığıdır. `BİTİREĞER` ve `DÖNGÜ SONU`
+gibi kapanışlar da bloğun nerede bittiğini açıkça gösterir.
+
+<Callout type="tip" title="Türkçe mi, İngilizce mi?">
+Sözde kod insan içindir, o yüzden **istediğin dilde** yazabilirsin. Biz Türkçe anahtar
+kelimeler kullanıyoruz; çoğu kaynak İngilizce kullanır. Karşılıkları bilmek işine yarar:
+
+| Türkçe | İngilizce |
+| ------ | --------- |
+| `EĞER … İSE … DEĞİLSE … BİTİREĞER` | `IF … THEN … ELSE … ENDIF` |
+| `ZAMAN … DOĞRU İKEN … DÖNGÜ SONU` | `WHILE … DO … ENDWHILE` |
+| `VE` / `VEYA` / `DEĞİL` | `AND` / `OR` / `NOT` |
+| `MOD` (kalan) · `YAZ` · `OKU` | `MOD` · `PRINT` · `READ` |
+
+Fikir aynı; sadece kelimeler değişir.
+</Callout>
+
+## Akış şemasını sözde koda çevirmek
+
+İşin güzel yanı: [ikinci yazıdaki](/blog/akis-semalari) şemaları neredeyse mekanik
+olarak sözde koda çevirebilirsin. Aynı üç örneği hatırlayalım.
+
+### Çift mi, tek mi? (karar)
+
+Şemadaki karar baklavası, sözde kodda bir `EĞER` olur:
+
+```text title="Çift / tek — sözde kod" showLineNumbers=false
+OKU sayı
+EĞER sayı MOD 2 = 0 İSE
+    YAZ "Çift"
+DEĞİLSE
+    YAZ "Tek"
+BİTİREĞER
+```
+
+> `MOD`, bölmeden kalanı verir (5 MOD 2 = 1). Kalan 0 ise sayı tam bölünüyor, yani çift.
+
+### 1'den 5'e say (döngü)
+
+Şemadaki geriye dönen ok, sözde kodda bir döngü bloğuna dönüşür:
+
+```text title="1'den 5'e say — sözde kod" showLineNumbers=false
+sayı ← 1
+ZAMAN sayı ≤ 5 DOĞRU İKEN
+    YAZ sayı
+    sayı ← sayı + 1
+DÖNGÜ SONU
+```
+
+### 3 denemeli şifre (iç içe yapı)
+
+En karmaşık örnek bile sade görünür. Bir döngü, içinde bir karar, bir de sayaç:
+
+```text title="3 denemeli şifre — sözde kod" showLineNumbers=false
+deneme ← 0
+ZAMAN deneme < 3 DOĞRU İKEN
+    OKU şifre
+    EĞER şifre doğru İSE
+        YAZ "İçeri alındı"
+        DUR
+    DEĞİLSE
+        deneme ← deneme + 1
+    BİTİREĞER
+DÖNGÜ SONU
+EĞER deneme = 3 İSE
+    YAZ "Hesap kilitlendi"
+BİTİREĞER
+```
+
+Gördüğün gibi şemadaki her şekil, sözde kodda bir satıra ya da bloğa karşılık geliyor.
+Akış şeması ile sözde kod aynı algoritmanın iki yüzü.
+
+## Hepsini birleştirelim: tam bir örnek
+
+Şimdi öğrendiğimiz her şeyi tek bir algoritmada toplayalım. Problem: **1'den 10'a kadar
+olan çift sayıların toplamını bul.** Burada atama, döngü, koşul, karşılaştırma ve `MOD`
+hep birlikte çalışıyor:
+
+```text title="1–10 arası çift sayıların toplamı" showLineNumbers=false
+BAŞLA
+    sayı   ← 0
+    toplam ← 0
+    ZAMAN sayı ≤ 10 DOĞRU İKEN
+        EĞER sayı MOD 2 = 0 İSE
+            toplam ← toplam + sayı
+        BİTİREĞER
+        sayı ← sayı + 1
+    DÖNGÜ SONU
+    YAZ toplam
+BİTİR
+```
+
+Satır satır oku: `sayı` 0'dan 10'a kadar ilerliyor; her turda "çift mi?" diye soruluyor
+(`sayı MOD 2 = 0`), çiftse `toplam`a ekleniyor. Döngü bitince sonuç yazdırılıyor. İşte
+karmaşık görünen bir iş, beş basit yapı taşının iç içe geçmesiyle çözüldü. **Bütün seri
+boyunca anlattığımız şey buydu:** problemi adımlara böl, adımları net kelimelerle yaz.
+
+<Callout type="note" title="Sıradaki adım: gerçek kod">
+Bu sözde kod artık o kadar nettir ki, bir programlama diline (Java, Python, C#…)
+çevirmek neredeyse satır satır bir iştir. `EĞER` → `if`, `YAZ` → `print`, `MOD` → `%`…
+Mantığı bir kez doğru kurduğunda, onu istediğin dile taşıyabilirsin.
+</Callout>
+
+## Sık yapılan hatalar
+
+<Callout type="caution" title="Bu tuzaklara dikkat">
+- **Fazla "kod" yazmak:** Sözde kod, gerçek bir dilin tüm ayrıntılarını (kütüphane
+  isimleri, tip tanımları) taşımamalı. Amaç netlik; ayrıntı koda kalsın.
+- **Fazla "muğlak" yazmak:** "Veriyi hallet" gibi bir satır sözde kod değildir. Her
+  adım, bir robotun uygulayabileceği kadar net olmalı.
+- **Girintiyi ve blok kapanışını savsaklamak:** Girinti ve `BİTİREĞER` / `DÖNGÜ SONU`,
+  neyin hangi bloğun içinde olduğunu gösteren tek ipucu. Bozulursa `EĞER`in nerede
+  bittiği belirsizleşir.
+- **Tutarsız kalmak:** Bir yerde `YAZ`, başka yerde `GÖSTER`, bir başka yerde `print`
+  kullanmak okuyanı yorar. Bir takım kural seç, sonuna kadar ona sadık kal.
+</Callout>
+
+## Kendin dene
+
+Okuyup geçme — bir kâğıt ve kalem al. Aşağıdaki problemlerin **sözde kodunu** yaz
+(akış şemasını da çizebilirsin, ikisi de aynı kapıya çıkar).
+
+### Egzersiz 1 — Selamlama (kolay)
+
+> Kullanıcıdan adını al, ekrana "Merhaba, &lt;ad&gt;!" yaz.
+
+<Callout type="note" title="İpucu">
+İki satır yeter: bir `OKU`, bir `YAZ`. Atama ve metin birleştirmeyi (`+`) hatırla.
+</Callout>
+
+### Egzersiz 2 — Geçer not (orta)
+
+> Bir öğrencinin notunu al. 85'in üstündeyse "Geçti (pekiyi)", 50 ve üstündeyse "Geçti",
+> altındaysa "Kaldı" yaz.
+
+<Callout type="note" title="İpucu">
+Zincirleme `EĞER` gerekir. Önce `not > 85` mi, değilse `not ≥ 50` mi diye sor.
+[Çok kollu karar](/blog/akis-semalari) örneğini hatırla. Karşılaştırma operatörleri
+(`>`, `≥`) tam burada işine yarayacak.
+</Callout>
+
+### Egzersiz 3 — Oy hakkı (mantık operatörü)
+
+> Bir kişi **18 yaşından büyük VE** vatandaşsa "Oy kullanabilir", değilse "Oy kullanamaz"
+> yaz.
+
+<Callout type="note" title="İpucu">
+Tek bir `EĞER` ve bir `VE` operatörü yeter: `EĞER yaş ≥ 18 VE vatandaş İSE …`. İki koşulun
+da aynı anda doğru olması gerektiğine dikkat et — biri bile yanlışsa sonuç "kullanamaz".
+</Callout>
+
+Yazdığın sözde kodu "robot arkadaşına" yüksek sesle oku: *Her adım net mi? Girinti ve
+blok kapanışları doğru mu? Döngü bir yerde bitiyor mu?* Bunu yapabiliyorsan, artık koda
+çevirmeye hazırsın demektir.
+
+## Özet
+
+<Callout type="tip" title="Cebine koy">
+- **Sözde kod**, akış şeması ile gerçek kod arasındaki ara duraktır: insan diline yakın
+  ama yapılı.
+- **Resmî bir standardı yoktur**; önemli olan tutarlı ve okunabilir olmasıdır.
+- Temel yapı taşları: **atama** (`←`), **girdi/çıktı** (`OKU`/`YAZ`), **koşul**
+  (`EĞER … BİTİREĞER`), **döngü** (`ZAMAN … DÖNGÜ SONU`) ve **girinti**.
+- **Karşılaştırma** (`=`, `≠`, `>`, `<`, `≥`, `≤`) ve **mantık** (`VE`, `VEYA`, `DEĞİL`)
+  operatörleriyle koşulları kurar ve birleştirirsin.
+- İyi yazılmış sözde kod, **gerçek koda neredeyse satır satır** çevrilir.
+- "Algoritma" kelimesi 9. yüzyıl âlimi **el-Harezmî**'den; sözde kod ise yapısal
+  programlama ve **ALGOL** geleneğinden gelir.
+</Callout>
