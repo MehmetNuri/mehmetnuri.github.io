@@ -1,0 +1,500 @@
+---
+title: 'Algoritma: Değişkenler'
+description: 'Değişken nedir, bilgisayar bilgiyi nasıl saklar? Etiketli kutu örneğiyle değer atama, işlemler, veri çeşitleri ve iyi isimlendirmeyi kod yazmadan, sıfırdan öğren.'
+pubDate: '2026-06-24'
+heroImage: '../../assets/degiskenler.webp'
+category: 'Programlama Temelleri'
+tags: ['değişken', 'algoritma', 'programlama-temelleri', 'veri', 'yazılıma-başlangıç']
+series: 'Algoritmalar'
+seriesOrder: 4
+tech: true
+faq:
+  - q: 'Değişken nedir?'
+    a: 'Değişken, bir bilgiyi içinde saklayan, üzerinde bir adı (etiketi) olan kutudur. İçine bir değer koyarsın (örneğin yaş = 25) ve sonra o adı kullanarak değere ulaşırsın. Bilgisayarın bir bilgiyi hatırlamasının en temel yolu budur ve fiziksel olarak bilgisayarın belleğinde (RAM) tutulur.'
+  - q: 'Değişkene değer atamak ne demek?'
+    a: 'Atama, bir değişkenin içine bir değer koymaktır. Sözde kodda genelde sol ok (yaş ← 25) ya da eşittir (yaş = 25) ile gösterilir. "Yaş kutusuna 25 yaz" diye okunur; eşittir işareti burada matematikteki gibi "eşit mi?" sorusu değil, "şunu içine koy" komutudur.'
+  - q: 'Bir değişkenin değeri değişebilir mi?'
+    a: 'Evet — adı zaten buradan gelir. Bir değişkenin üstüne yeni bir değer yazdığında eski değer kaybolur ve yerini yenisi alır. Bu yüzden bir değeri kaybetmeden başka bir yere taşımak için çoğu zaman geçici bir değişken kullanılır.'
+  - q: 'Değişken çeşitleri (veri tipleri) nelerdir?'
+    a: 'Başlangıç için üç temel çeşit yeter: sayılar (tam sayı 25, ondalık 9.99), metinler/yazılar ("Ada", tırnak içinde) ve doğru/yanlış değerleri (doğru, yanlış). Farklı türde bilgiler farklı kutularda tutulur; ilerideki dillerde bunlara "veri tipi" denir.'
+  - q: 'İlkel (primitive) veri tipi nedir?'
+    a: 'İlkel (primitive) tipler, daha küçük parçalara bölünemeyen en temel veri tipleridir: tam sayı (integer), ondalıklı sayı (float), karakter (char) ve doğru/yanlış (boolean). Gündelik karşılıkları sırasıyla sayılan şeyler (elma adedi), ölçülen şeyler (boy), tek bir sembol (kan grubu) ve iki durumlu şeylerdir (ışık açık/kapalı). Metin (string) ise karakterlerden oluştuğu için çoğu dilde ilkel sayılmaz.'
+  - q: 'İzleme tablosu (trace table) nedir?'
+    a: 'İzleme tablosu, bir algoritmayı kâğıt üstünde adım adım çalıştırırken her değişkenin değerinin nasıl değiştiğini takip etmek için kullanılan bir tablodur. Her satır bir adımı, her sütun bir değişkeni gösterir. Hataları koda dökmeden bulmanın en pratik yoludur.'
+  - q: 'Sabit (constant) ile değişken arasındaki fark nedir?'
+    a: 'Değişkenin değeri program çalışırken değişebilir; sabitin değeri ise baştan konur ve hiç değişmez (örneğin Pi = 3.14159 ya da KDV_ORANI = 0.20). Değişmemesi gereken değerleri sabit yapmak, yanlışlıkla değiştirilmelerini önler.'
+  - q: 'İyi bir değişken adı nasıl olur?'
+    a: 'İyi bir ad, kutunun içinde ne olduğunu tek bakışta anlatır. "x" yerine "yaş", "toplam", "kullaniciAdi" gibi anlamlı adlar seç. Genelde boşluk kullanılmaz; kelimeler camelCase (kullaniciAdi) ya da snake_case (kullanici_adi) ile birleştirilir.'
+---
+
+import Callout from '../../components/Callout.astro';
+import Steps from '../../components/Steps.astro';
+
+[Önceki yazıda](/blog/sozde-kod) sözde kod yazarken `sayı ← 1` ya da `toplam ← 0`
+gibi satırlar kullandık. Ama hiç durup şunu sormadık: **bu `sayı`, bu `toplam` tam
+olarak ne?** İçine değer koyduğumuz bu küçük kutuların bir adı var: **değişken.**
+
+Bu yazıda hiç kod yazmadan, değişkenin ne olduğunu en baştan, günlük örneklerle
+anlayacağız. Çünkü değişken, bir programın **bilgiyi hatırlama** biçimidir — ve
+yazacağın hemen her algoritmanın temelinde o vardır.
+
+<Callout type="note" title="Bu seride neredeyiz?">
+Bu, **Algoritmalar** serisinin dördüncü yazısı. Şu ana kadar algoritmayı tanıdık,
+akış şemasıyla çizdik ve sözde kodla yazdık. Şimdi algoritmaların *içine* girip ilk
+yapı taşına bakıyoruz: bilgiyi saklayan kutular, yani değişkenler.
+</Callout>
+
+## Bir hatırlama sorunu
+
+Şöyle düşün: bir arkadaşına markette alışveriş yaptırıyorsun ve telefonda
+söylüyorsun. "Üç ekmek al" dedin. Arkadaşın bunu **aklında tutmak** zorunda, değil
+mi? Kafasının bir köşesine "ekmek = 3" diye not alır.
+
+Bilgisayar da aynı şeyi yapar. Bir bilgiyi sonra kullanmak için bir yere **koyması**
+ve o yere bir **ad** vermesi gerekir. İşte o yer, değişkendir.
+
+> Bir **değişken**, içine bir bilgi koyduğumuz, üzerinde bir **adı (etiketi)** olan
+> bir kutudur. Kutunun adını söyleyince, bilgisayar içindeki değeri sana getirir.
+
+## Etiketli kutu
+
+Aklında şu resmi tut: üstünde etiket olan bir kutu.
+
+- Kutunun **adı** (etiketi): `yaş`
+- Kutunun **içindeki değer**: `25`
+
+Bir kâğıda şöyle çizebilirsin:
+
+```text title="Bir değişken" showLineNumbers=false
+┌───────────┐
+│   yaş     │   ← kutunun adı (etiketi)
+│    25     │   ← içindeki değer
+└───────────┘
+```
+
+Artık `yaş` dediğinde bilgisayar "25" diye anlar. Adı bir kez koyduktan sonra, değerin
+ne olduğunu ezberlemek zorunda değilsin; sadece adı kullanırsın.
+
+<Callout type="note" title="Bu kutular fiziksel olarak nerede?">
+Bu kutular gerçekten var: bilgisayarın **belleğinde (RAM)** tutulurlar. Belleği,
+üzerinde milyonlarca küçük göz olan dev bir dolap gibi düşün. Sen `yaş ← 25` dediğinde
+bilgisayar boş bir göz bulur, içine 25'i koyar ve o gözün yerini `yaş` adıyla
+eşleştirir. Sen adı söylersin, o doğru gözü bulur. Adresleri ezberlemekle uğraşmazsın
+— işte değişkenin sana sağladığı kolaylık budur.
+</Callout>
+
+## Bir kişiyi kutularla tarif etmek
+
+Bir tek kutu güzel, ama asıl güç birden fazlasını birlikte kullanınca ortaya çıkar.
+Diyelim bir kullanıcıyı tarif etmek istiyoruz. Tek bir bilgi yetmez; birkaç kutu
+kullanırız:
+
+```text title="Bir kullanıcı = birkaç değişken" showLineNumbers=false
+isim  ← "Mehmet"
+yaş   ← 25
+şehir ← "Ankara"
+aktif ← doğru
+```
+
+İşte bu kadar: dört kutu, bir kişiyi anlatıyor. Bir oyundaki karakteri (`can`, `skor`,
+`seviye`), bir ürünü (`ad`, `fiyat`, `stokta`) ya da bir hesabı hep böyle, birkaç
+değişkeni bir arada kullanarak temsil ederiz. Her kutu bir parçayı tutar; hepsi
+birlikte bütünü oluşturur.
+
+## Kutuya bir şey koymak: atama
+
+Bir değişkene değer koyma işine **atama** denir. Sözde kodda bunu sol ok (`←`) ile
+gösteriyorduk:
+
+```text title="Atama" showLineNumbers=false
+yaş   ← 25            # "yaş" kutusuna 25 koy
+isim  ← "Ada"         # "isim" kutusuna Ada yaz
+ekmek ← 3             # "ekmek" kutusuna 3 koy
+```
+
+Bu satırları "şunu şunun içine koy" diye soldan sağa değil, **sağdan sola** oku:
+*önce 25 değeri hazırlanır, sonra `yaş` kutusuna konur.*
+
+Bir değişkenin değerini başka bir değişkene de koyabilirsin. Bu durumda değer
+**kopyalanır** — kaynak kutu olduğu gibi kalır:
+
+```text title="Değişkenden değişkene" showLineNumbers=false
+a ← 7        # a kutusunda 7 var
+b ← a        # a'nın değeri (7) KOPYALANIP b'ye konur
+a ← 99       # a değişti ama b hâlâ 7; çünkü b'ye değerin kopyası gitmişti
+```
+
+<Callout type="important" title="Eşittir her zaman 'eşit mi?' demek değildir">
+İleride gerçek kodda atamayı çoğu zaman eşittir işaretiyle göreceksin: `yaş = 25`.
+Burada `=` matematikteki gibi "yaş, 25'e eşit mi?" diye **sormaz**; "25'i yaş kutusuna
+**koy**" diye **emreder**. Yeni başlayanların en çok karıştırdığı nokta budur. Biz
+karışmasın diye sözde kodda ok (`←`) kullanıyoruz.
+</Callout>
+
+## Bir değişkenin hayatı
+
+Her değişken kısa bir hayat yaşar; üç aşaması vardır:
+
+<Steps>
+
+1. **Doğum (oluşturma):** İlk kez bir ad verip içine değer koyarsın — `skor ← 0`.
+2. **Kullanım (okuma):** Adını söyleyip içindeki değeri okursun — `YAZ skor`.
+3. **Değişim (güncelleme):** Üstüne yeni bir değer yazarsın — `skor ← skor + 10`.
+
+</Steps>
+
+Bir değişkeni daha doğmadan (içine hiç değer koymadan) okumaya çalışmak tipik bir
+hatadır — boş bir kutudan bir şey çıkarmaya benzer. Önce koy, sonra oku.
+
+## Değişkenlerle işlem yapmak
+
+Değişkenler sadece bilgi *saklamaz*; asıl güçleri, üzerlerinde **işlem** yapabilmendir.
+Sayılarla aritmetik yaparsın:
+
+```text title="Sayılarla işlem" showLineNumbers=false
+en   ← 5
+boy  ← 3
+alan ← en * boy      # alan = 15
+```
+
+`+` topla, `-` çıkar, `*` çarp, `/` böl. Geçen yazıdan hatırla: `MOD` ise bölmeden
+kalanı verir (`7 MOD 3 = 1`). Birkaç değişkeni bir formülde birleştirebilirsin —
+örneğin santigrat dereceyi fahrenheite çevirelim:
+
+```text title="Sıcaklık dönüşümü" showLineNumbers=false
+celsius    ← 25
+fahrenheit ← celsius * 9 / 5 + 32    # 77
+```
+
+Metinleri ise **birleştirebilirsin** (buna *birleştirme* denir); genelde yine `+`
+kullanılır:
+
+```text title="Metinleri birleştirmek" showLineNumbers=false
+ad     ← "Ada"
+soyad  ← "Lovelace"
+tamAd  ← ad + " " + soyad    # tamAd = "Ada Lovelace"
+```
+
+Dikkat: aradaki `" "` (boşluklu tırnak) olmasaydı sonuç `"AdaLovelace"` olurdu.
+Bilgisayar tam olarak ne dersen onu yapar — boşluğu bile sen koymalısın.
+
+## Neden "değişken"? Çünkü değeri değişir
+
+İsmi tam da buradan gelir: bir değişkenin değeri **değişebilir.** Aynı kutuya yeni bir
+değer koyarsan, eski değer kaybolur:
+
+```text title="Değer değişir" showLineNumbers=false
+puan ← 10        # puan kutusunda artık 10 var
+puan ← 25        # eski 10 silindi; puan kutusunda artık 25 var
+puan ← puan + 5  # puan = 25 + 5 = 30
+```
+
+Son satıra dikkat et: `puan ← puan + 5`. Bu matematik değil! "Şu anki `puan` değerini
+al, 5 ekle, sonucu yine `puan` kutusuna koy" demektir. Yani kutu önce okunur, sonra
+üstüne yeni değer yazılır. Bir sayacı artırmanın yolu tam olarak budur.
+
+### Eski bir tanıdık: takas (swap)
+
+[İlk yazıda](/blog/algoritma-nedir) "iki bardağın içindekini yer değiştir" bulmacasını
+çözmüştük, hatırladın mı? Şimdi o bulmacanın neden o kadar önemli olduğunu görüyoruz:
+bir kutunun üstüne düşünmeden yazarsan, eski değer **kaybolur.**
+
+İki değişkenin değerini takas etmek için bu yüzden **geçici bir kutu** gerekir:
+
+```text title="İki değeri takas etmek" showLineNumbers=false
+geçici ← a       # a'nın değerini geçici kutuya sakla
+a      ← b       # b'nin değerini a'ya koy
+b      ← geçici  # saklanan değeri b'ye koy
+```
+
+O bulmacadaki "boş üçüncü bardak", işte bu `geçici` değişkenin ta kendisiydi.
+
+## Değişkenleri takip etmek: izleme tablosu
+
+Bir algoritmada değişkenler sürekli değiştiği için, "şu an hangi kutuda ne var?"
+sorusunu takip etmek zorlaşır. Programcıların bunun için kullandığı basit ama güçlü
+bir araç var: **izleme tablosu (trace table).** Her satır bir adımı, her sütun bir
+değişkeni gösterir; algoritmayı kâğıt üstünde "kafadan çalıştırırsın".
+
+Şu küçük algoritmayı izleyelim:
+
+```text title="İzlenecek adımlar" showLineNumbers=false
+sayaç ← 0
+sayaç ← sayaç + 1
+sayaç ← sayaç + 1
+sayaç ← sayaç * 2
+```
+
+Her satırdan sonra `sayaç`ın değerini bir tabloya yazarız:
+
+| Adım | `sayaç` |
+| ---- | :-----: |
+| `sayaç ← 0`         | 0 |
+| `sayaç ← sayaç + 1` | 1 |
+| `sayaç ← sayaç + 1` | 2 |
+| `sayaç ← sayaç * 2` | 4 |
+
+Tablonun sonunda `sayaç`ın 4 olduğunu **kesin olarak** biliyoruz — tahmin etmedik,
+adım adım izledik. Bir hatan olduğunda da bu yöntem altın değerindedir: hangi adımda
+işlerin ters gittiğini tam olarak görürsün.
+
+## Bilgisayarın temel tipleri: ilkel (primitive) tipler
+
+Bir kutuya ne koyduğun önemlidir, çünkü bilgisayar farklı **türde** bilgileri farklı
+biçimde saklar ve onlarla farklı işler yapar. En temel, daha küçük parçalara
+bölünemeyen tiplere **ilkel (primitive) tipler** denir — bütün programların yapıldığı
+tuğlalar gibi. Korkutucu görünmesinler; hepsi aslında gündelik hayattan tanıdığın
+şeyler.
+
+### Tam sayı (integer) — sayılabilen şeyler
+
+Bölünmeyen, tek tek **sayılan** şeyler: sepetteki elma adedi, yaşın, bir binanın kat
+sayısı, sınıftaki öğrenci sayısı. "2,5 öğrenci" diye bir şey olmaz.
+
+```text showLineNumbers=false
+yaş ← 25      adet ← 3      kat ← 7
+```
+
+**Algoritmayla bağı:** Bir döngüdeki sayaç hep tam sayıdır (`1'den 5'e say`); bir
+şeyin kaç tane olduğunu tutmak için kullanılır.
+
+### Ondalıklı sayı (float) — ölçülen şeyler
+
+Kesirli olabilen, **ölçülerek** elde edilen şeyler: boyun (1.78 m), ateşin (36.6°C),
+bir ürünün fiyatı (9.99 TL), depodaki benzin (42.5 litre).
+
+```text showLineNumbers=false
+boy ← 1.78      fiyat ← 9.99      sıcaklık ← 36.6
+```
+
+**Algoritmayla bağı:** Ortalama, oran, yüzde ve para hesapları genelde ondalık sayıyla
+yapılır (`ortalama ← toplam / 3`).
+
+### Karakter (char) — tek bir sembol
+
+Tek bir harf, rakam ya da işaret; tek tırnak içinde yazılır: `'A'`. Gündelik karşılığı:
+kan grubun (`A`, `B`, `0`), karne harfin (`A`, `F`), bir soruya `E`/`H` cevabın.
+
+```text showLineNumbers=false
+kanGrubu ← 'A'      harfNotu ← 'B'      cevap ← 'E'
+```
+
+**Algoritmayla bağı:** "Tek tuşla seçim" (`E`/`H` menüsü) ya da bir harfin kontrolü
+gibi yerlerde kullanılır.
+
+### Doğru / Yanlış (boolean) — iki durumlu şeyler
+
+Sadece iki değeri olan bilgi: ışık **açık mı kapalı mı**, kapı kilitli mi, fatura
+ödendi mi, yağmur yağıyor mu. Açık/kapalı bir anahtar gibi.
+
+```text showLineNumbers=false
+kapıAçık ← doğru      ödendi ← yanlış
+```
+
+Bu türü çoğu zaman **sen yazmazsın** — bir karşılaştırmanın sonucu olarak kendiliğinden
+ortaya çıkar:
+
+```text title="Doğru/yanlış nereden gelir" showLineNumbers=false
+yaş      ← 20
+yetişkin ← yaş ≥ 18      # yetişkin kutusuna "doğru" konur (çünkü 20 ≥ 18)
+```
+
+**Algoritmayla bağı:** Bütün **koşulların** (`EĞER … İSE`) yakıtı budur; geçen yazıdaki
+[karşılaştırma operatörleri](/blog/sozde-kod) (`≥`, `<`, `=` …) hep bu doğru/yanlış
+değerlerini üretir. Bir durumu işaretleyen "bayrak" (flag) olarak da kullanılır.
+
+### Bir de: metin (string) — karakterlerin dizisi
+
+Bir isim, bir adres, bir cümle... Aslında bir **metin**, yan yana dizilmiş
+**karakterlerden** oluşur: `"Ada"` = `'A'` + `'d'` + `'a'`. Çift tırnak içinde yazılır.
+
+```text showLineNumbers=false
+isim ← "Ada"      şehir ← "İstanbul"
+```
+
+**Algoritmayla bağı:** Kullanıcının adını, bir mesajı ya da adresi saklamak için
+kullanılır.
+
+Hepsini bir arada görelim:
+
+| Tip | Gündelik karşılığı | Örnek | Algoritmada |
+| --- | ------------------ | ----- | ----------- |
+| Tam sayı (*integer*)     | elma adedi, yaş   | `25`    | sayaç, adet        |
+| Ondalık (*float*)        | boy, sıcaklık, fiyat | `9.99` | ortalama, oran     |
+| Karakter (*char*)        | kan grubu, not harfi | `'A'`  | menü seçimi        |
+| Doğru/Yanlış (*boolean*) | ışık açık mı?     | `doğru` | koşullar, bayrak   |
+| Metin (*string*)         | isim, adres       | `"Ada"` | kullanıcı girdisi  |
+
+<Callout type="note" title="'İlkel' ne demek, metin neden farklı?">
+**İlkel (primitive)** tip, daha küçük parçalara bölünemeyen en temel tiptir — tam sayı,
+ondalık, karakter ve doğru/yanlış böyledir. **Metin (string)** ise bir dizi karakterden
+kurulu olduğu için çoğu dilde "ilkel" sayılmaz; ilkel tuğlalardan örülmüş bir duvar
+gibidir. Bu İngilizce adları (*integer*, *float*, *char*, *boolean*, *string*) şimdi
+ezberlemene gerek yok; ileride gerçek kodda sürekli karşına çıkacaklar, o yüzden
+tanıdık gelsinler. Şimdilik aklında tutman gereken tek şey: **her bilginin bir türü
+vardır ve tür, o bilgiyle ne yapabileceğini belirler.**
+</Callout>
+
+<Callout type="tip" title="Tırnak küçük ama önemli bir detay">
+`yaş ← 25` ile `yaş ← "25"` aynı şey değildir. İlki bir **sayıdır**, onunla hesap
+yapabilirsin (`yaş + 1` → 26). İkincisi tırnak içinde olduğu için bir **yazıdır** —
+bilgisayar onu "2" ve "5" karakterleri olarak görür. Ona `+ 1` yaparsan hesap değil,
+tuhaf sonuçlar alırsın. İlerideki dillerde bu ayrım çok önemli hâle gelecek.
+</Callout>
+
+## Değişmeyenler: sabitler
+
+Bazen bir değerin **hiç değişmemesini** isteriz. Bir çemberin pi sayısı her zaman
+3.14159'dur; KDV oranı bir hesap boyunca sabit kalır. Böyle değerleri bir kez koyup
+bir daha değiştirmediğimiz kutulara **sabit (constant)** denir:
+
+```text title="Sabitler" showLineNumbers=false
+PI        ← 3.14159
+KDV_ORANI ← 0.20
+```
+
+Sabitleri genelde **BÜYÜK harfle** yazmak bir gelenektir; böylece koda bakan biri
+"buna dokunma, bu değişmez" olduğunu hemen anlar. Değişmemesi gereken bir değeri sabit
+yapmak, onu yanlışlıkla bozmanı engeller.
+
+## Hepsi bir arada: küçük bir örnek
+
+Tek tek öğrendiklerimizi birleştirelim. Bir alışveriş sepetinin **KDV dahil toplam
+tutarını** hesaplayalım. Burada atama, işlem, sayı ve sabit hep birlikte çalışıyor:
+
+```text title="Sepet toplamı — sözde kod" showLineNumbers=false
+KDV_ORANI ← 0.20
+
+fiyat     ← 50
+adet      ← 3
+araToplam ← fiyat * adet          # 150
+kdv       ← araToplam * KDV_ORANI # 30
+toplam    ← araToplam + kdv        # 180
+
+YAZ "Ödenecek tutar: " + toplam
+```
+
+Satır satır oku: `araToplam` fiyat ile adetten hesaplanıyor, `kdv` ara toplam ile sabit
+orandan, `toplam` ise ikisinin toplamından. Her değişken bir öncekine dayanıyor — tıpkı
+bir tarifteki adımlar gibi. İşte değişkenler bir algoritmada böyle birlikte çalışır.
+
+## İyi bir değişkene iyi bir ad
+
+Bir değişkene istediğin adı verebilirsin, ama **iyi** bir ad, kutunun içinde ne
+olduğunu tek bakışta anlatır.
+
+```text title="Hangisi daha anlaşılır?" showLineNumbers=false
+# Kötü                  # İyi
+x ← 25                  yaş ← 25
+a ← "Ada"               isim ← "Ada"
+t ← f * m               toplam ← fiyat * miktar
+```
+
+Sağdaki satırları okuyunca ne yaptığını anlıyorsun; soldakilerde tahmin etmek zorunda
+kalıyorsun. Birkaç pratik kural:
+
+<Steps>
+
+1. **Anlamlı olsun** — ad, içindeki değeri anlatsın (`sıcaklık`, `kullaniciAdi`).
+2. **Boşluk kullanma** — çoğu dil kabul etmez. Kelimeleri birleştir: `kullaniciAdi`
+   (buna *camelCase* denir) ya da `kullanici_adi` (buna *snake_case* denir).
+3. **Rakamla başlama** — `2.oyuncu` değil, `oyuncu2` olur.
+4. **Tutarlı ol** — bir projede hep camelCase ya da hep snake_case kullan, ikisini
+   karıştırma.
+
+</Steps>
+
+<Callout type="warning" title="Büyük/küçük harf önemlidir">
+Çoğu programlama dili için `yas`, `Yas` ve `YAS` **üç farklı kutudur.** Bir değişkeni
+`kullaniciAdi` diye oluşturup sonra `KullaniciAdi` diye okumaya çalışırsan, bilgisayar
+"öyle bir kutu tanımıyorum" der. Bu yüzden bir adı nasıl yazdıysan, hep aynı şekilde
+yaz.
+</Callout>
+
+Unutma: bir kodu altı ay sonra okuyan kişi çoğu zaman **sensin** — ve o an kendine
+teşekkür etmek istersin.
+
+<Callout type="note" title="Küçük bir tarih notu: 'x' nereden geldi?">
+Bir şeyi bir harfle temsil etme fikri **cebirden** gelir; matematikte bilinmeyeni
+`x`, `y` ile gösteririz. Bu serinin [önceki yazısında](/blog/sozde-kod) tanıştığımız
+**el-Harezmî**'nin kurduğu cebir, işte bu "bir değeri bir adla temsil etme"
+düşüncesinin atasıdır. Programlamadaki değişken de aynı fikrin torunu: bir değere bir
+ad takıp onunla düşünmek. Aradaki tek fark, kodda artık tek harfli `x` yerine
+`yaş` gibi konuşan adlar tercih etmemiz.
+</Callout>
+
+## Sık yapılan hatalar
+
+<Callout type="caution" title="Bu tuzaklara dikkat">
+- **Atamayı eşitlikle karıştırmak:** `puan ← puan + 5` bir denklem değil, bir
+  komuttur. "Eski değeri al, işle, geri koy" diye oku.
+- **Bir değerin üstüne düşünmeden yazmak:** Bir kutuya yeni değer koyunca eskisi
+  gider. Saklaman gerekiyorsa önce geçici bir değişkene al.
+- **Tırnağı unutmak/karıştırmak:** `5` bir sayı, `"5"` bir yazıdır. İkisi farklı
+  davranır; sayılar hesaplanır, yazılar birleştirilir.
+- **Değişkeni kullanmadan önce değer vermemek:** İçine bir şey koymadığın bir kutuyu
+  okumaya çalışmak (`YAZ toplam` ama `toplam` hiç tanımlanmamış) tipik bir hatadır.
+- **Anlamsız adlar:** `x`, `y`, `tmp2` gibi adlar bir hafta sonra sana hiçbir şey
+  ifade etmez. Adı, içindekini anlatsın.
+</Callout>
+
+## Kendin dene
+
+Bir kâğıt ve kalem al ve az önce öğrendiğimiz **izleme tablosu** alışkanlığını
+kullan: her satırdan sonra her kutunun içinde ne olduğunu tabloya yaz.
+
+### Egzersiz 1 — Takip et (kolay)
+
+```text title="Adımları izle" showLineNumbers=false
+elma   ← 4
+armut  ← 7
+elma   ← elma + 2
+geçici ← elma
+elma   ← armut
+armut  ← geçici
+```
+
+<Callout type="note" title="İpucu">
+`elma`, `armut` ve `geçici` için üç sütunlu bir izleme tablosu çiz. Üçüncü satırda
+`elma` değişir (6 olur); son üç satır ise bir **takas**. Sonunda `elma = 7`,
+`armut = 6` çıkmalı. Tabloyu adım adım doldurduysan doğru bulmuşsundur.
+</Callout>
+
+### Egzersiz 2 — Ortalama hesapla (orta)
+
+> Bir öğrencinin üç sınav notu var: 70, 85 ve 90. Bu notların **ortalamasını** bulan
+> sözde kodu yaz.
+
+<Callout type="note" title="İpucu">
+Üç değişkene notları koy, bir `toplam` değişkeninde topla, sonra 3'e böl:
+`ortalama ← toplam / 3`. Sonucu `YAZ` ile yazdır. Sepet örneğindeki gibi her adım bir
+öncekine dayanır.
+</Callout>
+
+### Egzersiz 3 — Kendini tarif et (mini proje)
+
+> Kendini temsil eden değişkenleri yaz: `isim`, `yaş`, `şehir`, `öğrenci` (doğru/yanlış).
+> Sonra `yaş`ını bir artır (yeni yaşına geçtiğini düşün) ve `şehir`ini değiştir.
+
+<Callout type="note" title="İpucu">
+Hangi kutuya hangi **veri çeşidini** koyduğuna dikkat et: `isim` ve `şehir` birer
+**metin** (tırnak içinde), `yaş` bir **sayı**, `öğrenci` ise **doğru/yanlış**. Bu, bir
+varlığı birkaç değişkenle temsil etme alıştırmasıdır.
+</Callout>
+
+## Özet
+
+<Callout type="tip" title="Cebine koy">
+- **Değişken**, üstünde bir adı olan ve içinde bir değer saklayan, bilgisayarın
+  belleğindeki bir kutudur. Bir varlığı (kişi, ürün…) birkaç değişkenle temsil ederiz.
+- **Atama** (`←`), kutuya bir değer koymaktır; `=` işareti kodda "eşit mi?" değil,
+  "içine koy" demektir. Bir değişkeni başka birine atarsan değer **kopyalanır**.
+- Değişkenlerle **işlem** yaparsın: sayılarda aritmetik (`+ - * /`), metinlerde
+  birleştirme (`+`).
+- Bir değişkenin değeri **değişebilir**; üstüne yazınca eskisi kaybolur. Değerleri
+  adım adım takip etmek için **izleme tablosu** kullan.
+- Üç temel veri çeşidi: **sayı** (tam/ondalık), **metin** (tırnak içinde) ve
+  **doğru/yanlış**. Değişmeyen değerler için **sabit** kullanılır.
+- **Anlamlı adlar** seç (`x` değil `yaş`); boşluk yerine camelCase ya da snake_case,
+  ve büyük/küçük harfte tutarlı ol.
+</Callout>
