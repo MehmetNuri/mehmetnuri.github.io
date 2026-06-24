@@ -29,11 +29,15 @@ export function slugify(input: string): string {
 }
 
 /**
- * Yazı slug'ını translationId'nin dosya adından türetir.
+ * Yazı slug'ını belirler.
+ * Frontmatter'da açık bir `slug` verilmişse onu kullanır (ör. EN yazılarda İngilizce
+ * slug → /en/blog/flowcharts). Verilmemişse translationId'nin dosya adından türetir.
  * (Astro glob, id'deki noktayı sildiği için id güvenilir değil: merhaba.tr → merhabatr.)
- * translationId tüm diller için aynıdır, bu yüzden TR ve EN aynı slug'ı paylaşır.
+ * translationId tüm diller için aynı kaldığından, slug farklı olsa da TR↔EN
+ * hreflang eşleşmesi (getTranslations) bozulmaz.
  */
 export function postSlug(post: Post): string {
+	if (post.data.slug) return post.data.slug;
 	const base = (post.data.translationId || post.id).split('/').pop() || post.id;
 	return base.replace(/\.(md|mdx)$/i, '');
 }

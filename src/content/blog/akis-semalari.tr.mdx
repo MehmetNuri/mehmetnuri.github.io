@@ -1,0 +1,389 @@
+---
+title: 'Algoritma: Akış Şemaları'
+description: 'Akış şeması nedir, nasıl çizilir? Algoritmanın üç yapı taşını — sıra, karar ve döngü — bol örnekle, sıfırdan adım adım çizmeyi kod yazmadan öğren.'
+pubDate: '2026-06-24'
+heroImage: '../../assets/akis-semalari.webp'
+category: 'Programlama Temelleri'
+tags: ['akış-şeması', 'algoritma', 'programlama-temelleri', 'döngü', 'koşul', 'flowchart']
+series: 'Algoritmalar'
+seriesOrder: 2
+tech: true
+faq:
+  - q: 'Akış şeması (flowchart) nedir?'
+    a: 'Bir algoritmanın adımlarını kutular ve oklarla çizerek anlatma yöntemidir. Her şeklin belirli bir anlamı vardır (başlangıç/bitiş, işlem, karar, girdi/çıktı) ve oklar akışın yönünü gösterir. Dilden bağımsız olduğu için bir fikri tek satır kod yazmadan tasarlamaya ve paylaşmaya yarar.'
+  - q: 'Algoritmadaki üç temel yapı taşı nedir?'
+    a: 'Sıra (adımları birbiri ardına yapmak), karar/seçim (bir koşula göre dallanmak — "şu olursa bunu yap") ve döngü (bir iş bitene kadar adımları tekrarlamak). Ne kadar karmaşık olursa olsun her algoritma bu üç yapının birleşiminden oluşur.'
+  - q: 'Akış şemasında karar (decision) kutusu nasıl gösterilir?'
+    a: 'Karar, baklava (eşkenar dörtgen) şekliyle gösterilir ve içinde evet/hayır ile yanıtlanan bir soru bulunur. Bu kutudan en az iki ok çıkar; her okun üzerinde hangi yola gidileceğini söyleyen bir etiket (Evet / Hayır) yer alır.'
+  - q: 'Bir akış şemasını adım adım nasıl çizerim?'
+    a: 'Önce girdi ve çıktıyı belirle, sonra ana adımları sırayla diz, ardından "şu olursa?" diye soracağın yerlere karar kutuları ekle ve son olarak tekrar eden adımları geriye dönen bir okla döngüye çevir. Bu dört adımda hemen her algoritmayı şemaya dökebilirsin.'
+  - q: 'Sonsuz döngü nedir ve nasıl önlenir?'
+    a: 'Çıkış koşulu hiç sağlanmayan, dolayısıyla asla bitmeyen döngüdür. Önlemek için döngünün içinde, kontrol ettiğin koşulu eninde sonunda değiştiren bir adım olduğundan emin olursun — örneğin her turda bir sayacı artırmak. Değişmeyen bir koşulu beklemek, programı sonsuza kadar kilitler.'
+---
+
+import Callout from '../../components/Callout.astro';
+import Steps from '../../components/Steps.astro';
+
+[Geçen yazıda](/blog/algoritma-nedir) algoritmayı **kelimelerle** yazdık ve sonunda
+akış şemalarının şekilleriyle tanıştık. Şimdi sıra o şekilleri kullanıp **kendi
+algoritmanı çizmeye** geldi.
+
+Çünkü bir algoritma büyüdükçe, özellikle "şu olursa şunu yap, olmazsa bunu yap"
+gibi dallanmalar girince, düz cümleler kafa karıştırmaya başlar. Akış şeması tam
+da burada bir harita gibi devreye girer: nereye gittiğini tek bakışta görürsün.
+
+> **Akış şeması (flowchart)**, bir algoritmanın adımlarını kutular ve oklarla,
+> akışın yönünü gösteren bir diyagram hâlinde çizme biçimidir. Hangi programlama
+> dilini kullanırsan kullan aynı şema okunur; bu yüzden bir fikri **tek satır kod
+> yazmadan** tasarlamanın en hızlı yoludur.
+
+<Callout type="note" title="Bu seride neredeyiz?">
+Bu, **Algoritmalar** serisinin ikinci yazısı. İlkinde "algoritma nedir"i ve temel
+akış şeması şekillerini gördük. Burada hâlâ kod yazmıyoruz; amacımız bir
+algoritmayı **çizerek** düşünebilmek. Bir sonraki yazıda bu çizimleri sözde koda,
+oradan da gerçek koda çevireceğiz.
+</Callout>
+
+## Önce kısa bir hatırlatma
+
+Geçen yazıdan aklında kalsın diye, sürekli kullanacağımız dört temel şekil ve onları
+birbirine bağlayan ok şöyleydi:
+
+```mermaid
+flowchart LR
+    T([Başla / Bitir]) --> Td[Akışın başladığı ve bittiği yer]:::note
+    P[İşlem] --> Pd[Yapılacak bir iş — örn. Suyu ısıt]:::note
+    D{Karar?} --> Dd[Evet/Hayır sorusu; akışı dallandırır]:::note
+    IO[/"Girdi / Çıktı"/] --> IOd[Veri al ya da sonuç ver]:::note
+    classDef note fill:transparent,stroke:transparent
+```
+
+Ok (`-->`) akışın **yönünü** gösterir; bir karardan sonra okun üzerindeki etiket
+(`Evet` / `Hayır`) hangi yoldan gidileceğini söyler. Şimdi asıl meseleye gelelim:
+bu şekilleri birbirine **nasıl** dizeceğiz?
+
+## Her algoritma üç yapı taşından kurulur
+
+İyi haber şu: bir algoritma ne kadar karmaşık görünürse görünsün, aslında yalnızca
+**üç temel yapının** birleşiminden oluşur. Bunları öğrendiğinde, dünyadaki her
+akış şemasını okuyabilir hâle gelirsin.
+
+Bu üçünü tek tek, bolca örnekle inceleyeceğiz. Acele etme; her şemayı parmağınla
+takip ederek oku.
+
+## 1) Sıra — adımları birbiri ardına yapmak
+
+En basiti. Adımlar yukarıdan aşağıya, tek tek, hiç dallanmadan akar. Geçen yazıdaki
+"sabah rutini" tam olarak buydu.
+
+```mermaid
+flowchart TD
+    A([Başla]) --> B[Alarmı kapat]
+    B --> C[Yataktan kalk]
+    C --> D[Dişlerini fırçala]
+    D --> E([Bitti])
+```
+
+Burada karar yok, tekrar yok; sadece düz bir yol var. Çoğu algoritmanın iskeleti
+böyle başlar, sonra araya karar ve döngü serpiştiririz.
+
+Bir örnek daha — bankamatikten para çekmenin en yalın hali, hiç "ya olmazsa?" demeden:
+
+```mermaid
+flowchart TD
+    A([Başla]) --> B[Kartı tak]
+    B --> C[Şifreyi gir]
+    C --> D[Tutarı seç]
+    D --> E[Parayı al]
+    E --> F[Kartı geri al]
+    F --> G([Bitti])
+```
+
+Gerçek hayatta "şifre yanlışsa?" diye sorman gerekir; ama o, bir sonraki yapının işi.
+
+## 2) Karar — bir koşula göre yol ayrımı
+
+İşin rengi burada değişir. **Karar**, evet/hayır ile yanıtlanan bir sorudur ve
+akışı ikiye böler. Baklava şekliyle (`{ ... }`) çizilir ve içinden **en az iki ok**
+çıkar. Kararın üç farklı tadı var; üçünü de görelim.
+
+### Tek kollu karar — "şu olursa şunu yap"
+
+Bazen yalnızca koşul sağlandığında fazladan bir iş yaparız; sağlanmadığında hiçbir
+şey yapmadan devam ederiz. Klasik örnek: dışarı çıkmadan önce hava kontrolü.
+
+```mermaid
+flowchart TD
+    A([Başla]) --> B{Yağmur yağıyor mu?}
+    B -- Evet --> C[Şemsiyeni al]
+    B -- Hayır --> D[Dışarı çık]
+    C --> D
+    D --> E([Bitti])
+```
+
+"Hayır" yolu hiçbir ek iş yapmadan doğrudan `Dışarı çık` adımına gidiyor; "Evet"
+yolu ise araya `Şemsiyeni al` adımını sıkıştırıyor. İki yol yine **aynı noktada**
+birleşiyor.
+
+### Çift kollu karar — "ya bunu ya şunu"
+
+Bu sefer iki yol da kendi işini yapar. Geçen yazıda da gördüğümüz çift/tek kontrolü
+tam buna örnek:
+
+```mermaid
+flowchart TD
+    A([Başla]) --> B[/"Bir sayı al"/]
+    B --> C{Sayı 2'ye<br/>tam bölünüyor mu?}
+    C -- Evet --> D[/"Çift" yaz/]
+    C -- Hayır --> E[/"Tek" yaz/]
+    D --> F([Bitti])
+    E --> F
+```
+
+<Callout type="tip" title="Karardan her zaman en az iki çıkış">
+Bir karar kutusundan tek ok çıkıyorsa, orada bir hata vardır: o zaten bir karar
+değil, sıradan bir adımdır. Soru sorduysan, "evet" ve "hayır" cevaplarının
+**ikisinin de** gidecek bir yeri olmalı.
+</Callout>
+
+### Çok kollu karar — "şıklardan biri"
+
+Bazen ikiden fazla seçenek vardır. Bir notu harf karşılığına çevirelim. Bunu, her
+biri bir öncekinin "Hayır" yoluna bağlanan **kararlar zinciri** olarak çizeriz:
+
+```mermaid
+flowchart TD
+    A([Başla]) --> B[/"Notu al"/]
+    B --> C{Not ≥ 90?}
+    C -- Evet --> D[/"AA" yaz/]
+    C -- Hayır --> E{Not ≥ 80?}
+    E -- Evet --> F[/"BA" yaz/]
+    E -- Hayır --> G{Not ≥ 70?}
+    G -- Evet --> H[/"BB" yaz/]
+    G -- Hayır --> I[/"Kaldı" yaz/]
+    D --> Z([Bitti])
+    F --> Z
+    H --> Z
+    I --> Z
+```
+
+Akışı bir kez yukarıdan aşağı oku: not 85 olsaydı, ilk soruda "Hayır" deyip ikinci
+soruya iner, orada "Evet" deyip `BA` yazardı. İşte koddaki `if / else if / else`
+zincirinin görsel hâli tam olarak budur.
+
+## 3) Döngü — bir iş bitene kadar tekrarlamak
+
+Bazen aynı adımı bir koşul sağlanana kadar tekrar tekrar yaparız. Geçen yazıdaki
+"su kaynayana kadar bekle" tam olarak buydu. Döngünün sırrı, bir **karardan geriye
+dönen bir oktur.** Döngünün de iki yaygın türü var.
+
+### Sayaçlı döngü — "tam N kere yap"
+
+Kaç kere döneceğini baştan biliyorsak bir **sayaç** kullanırız. 1'den 5'e kadar
+sayalım:
+
+```mermaid
+flowchart TD
+    A([Başla]) --> B[sayı = 1]
+    B --> C{sayı ≤ 5 mi?}
+    C -- Evet --> D[/"sayı"yı yaz/]
+    D --> E[sayı = sayı + 1]
+    E --> C
+    C -- Hayır --> F([Bitti])
+```
+
+Bu şemayı yavaşça takip et: `sayı` 1'ken yazdırılıyor, sonra 2 oluyor, ok geri
+dönüp koşulu tekrar soruyor… Bu, ta ki `sayı` 6 olup koşul "Hayır" diyene kadar
+sürüyor. İşte bir döngünün üç olmazsa olmazı bu şemada gizli:
+
+<Steps>
+
+1. **Başlangıç:** Bir yerden başla (`sayı = 1`).
+2. **Koşul:** Devam edilecek mi diye sor (`sayı ≤ 5 mi?`).
+3. **İlerleme:** Her turda kontrol ettiğin değeri **değiştir** (`sayı = sayı + 1`).
+
+</Steps>
+
+Üçüncü adım hayati. Eğer `sayı`yı hiç artırmasaydık, koşul sonsuza kadar "Evet"
+derdi ve döngü asla bitmezdi. Buna **sonsuz döngü** denir; birazdan tuzaklar
+bölümünde tekrar karşılaşacağız.
+
+### Koşullu döngü — "olana kadar yap"
+
+Bazen kaç tur süreceğini bilmeyiz; sadece bir koşul sağlanana kadar devam ederiz.
+Doğru şifre girilene kadar tekrar tekrar soran bir kapı düşün:
+
+```mermaid
+flowchart TD
+    A([Başla]) --> B[/"Şifreyi iste"/]
+    B --> C{Şifre doğru mu?}
+    C -- Hayır --> B
+    C -- Evet --> D[Kapıyı aç]
+    D --> E([Bitti])
+```
+
+"Hayır" oku doğrudan `Şifreyi iste` adımına geri dönüyor; kullanıcı doğru şifreyi
+girene kadar bu döngü dönmeye devam eder. Sayaç yok, çünkü kaç deneme süreceğini
+önceden bilemeyiz — sadece "doğru olana kadar".
+
+## İç içe yapılar: döngünün içinde karar
+
+Asıl güç, bu üç yapıyı **iç içe** koyduğunda ortaya çıkar. 1'den 10'a kadar olan
+sayılardan yalnızca **çift olanları** yazdıralım. Burada bir döngünün *içine* bir
+karar yerleştiriyoruz:
+
+```mermaid
+flowchart TD
+    A([Başla]) --> B[sayı = 1]
+    B --> C{sayı ≤ 10 mu?}
+    C -- Hayır --> H([Bitti])
+    C -- Evet --> D{sayı çift mi?}
+    D -- Evet --> E[/"sayı"yı yaz/]
+    D -- Hayır --> F[sayı = sayı + 1]
+    E --> F
+    F --> C
+```
+
+Dikkatle bak: dıştaki **döngü** 1'den 10'a kadar her sayıyı geziyor; içerdeki
+**karar** ise her sayı için "çift mi?" diye soruyor. Çiftse yazdırıyor, değilse
+yazdırmadan bir sonrakine geçiyor. İki yapı birlikte çalışıyor — gerçek programların
+neredeyse tamamı işte böyle, basit parçaların iç içe geçmesinden doğar.
+
+## Bir şemayı sıfırdan adım adım kurmak
+
+Hazır örnekleri okumak başka, boş bir kâğıttan başlamak başka. İşte her seferinde
+işe yarayan dört adımlık bir tarif. Problemimiz şu olsun:
+
+> **"Kullanıcıdan şifre iste. En fazla 3 deneme hakkı olsun. Doğru girerse içeri al,
+> üç kez de yanlış girerse hesabı kilitle."**
+
+**Adım 1 — Girdi ve çıktıyı belirle.** Girdi: kullanıcının yazdığı şifre. Çıktı: ya
+"içeri alındı" ya "hesap kilitlendi".
+
+**Adım 2 — Ana adımları sırala.** En kaba hâliyle: şifre iste → kontrol et → sonucu
+söyle.
+
+**Adım 3 — Kararı ekle.** "Şifre doğru mu?" bir karar kutusu. Doğruysa içeri al.
+
+**Adım 4 — Tekrarı döngüye çevir.** Yanlışsa tekrar sor — ama sonsuza kadar değil,
+en fazla 3 kez. Demek ki bir **sayaca** ihtiyacımız var: her yanlış denemede artan,
+3'e ulaşınca döngüyü kıran bir sayaç.
+
+Hepsini birleştirince şema şu hâle gelir:
+
+```mermaid
+flowchart TD
+    A([Başla]) --> B[deneme = 0]
+    B --> C[/"Şifreyi iste"/]
+    C --> D{Şifre doğru mu?}
+    D -- Evet --> E[İçeri al]
+    E --> Z([Bitti])
+    D -- Hayır --> F[deneme = deneme + 1]
+    F --> G{deneme = 3 mü?}
+    G -- Hayır --> C
+    G -- Evet --> H[Hesabı kilitle]
+    H --> Z
+```
+
+Tek başına korkutucu görünen bir problemi, dört küçük soruyla adım adım çözülebilir
+parçalara böldük. Bütün mesele bu: **böl, sırala, kararları ve döngüleri yerine koy.**
+
+## Karmaşık dallanmaları sade tutmak
+
+Şemalar büyüdükçe spagettiye dönebilir. Birkaç basit alışkanlık onları okunur tutar:
+
+- **Tek yönde ak.** Genelde yukarıdan aşağıya (ya da soldan sağa) ilerle; okların
+  birbirini kesmesini elinden geldiğince azalt.
+- **Her yol bir yerde birleşsin ya da bitsin.** Havada kalan, hiçbir yere gitmeyen
+  ok bırakma.
+- **İç içe çok fazla karar varsa böl.** Üst üste dört-beş kararı yığmak yerine, bir
+  parçayı **alt-işlem** olarak ayır (geçen yazıdaki `[[Alt-işlem]]` şekli) ve onu
+  ayrı bir şemada çiz.
+- **Soruları "Evet/Hayır" ile yanıtlanır yaz.** "Kullanıcı?" değil, "Kullanıcı giriş
+  yaptı mı?". Net soru, net dallanma demektir.
+
+<Callout type="important" title="Şema amaç değil, araçtır">
+Akış şeması, fikrini **netleştirmek** içindir. Eğer çizdiğin şema seni koddan daha
+çok yoruyorsa, ya problemi fazla küçük parçalara böldün ya da tek bir dev şemaya
+sığdırmaya çalışıyorsun. Böl, sadeleştir, gerekirse birkaç küçük şema çiz.
+</Callout>
+
+## Sık yapılan hatalar
+
+Yeni başlayanların akış şemalarında en çok düştüğü tuzaklar şunlar:
+
+<Callout type="caution" title="Bu dört hataya dikkat">
+- **Çıkışı olmayan döngü (sonsuz döngü):** Geriye dönen okun bağlandığı koşul hiç
+  değişmiyorsa, akış orada sonsuza kadar takılır. Döngünün içinde koşulu
+  **değiştiren** bir adım olduğundan emin ol.
+- **Karardan tek çıkış:** Soru sorup yalnızca "Evet" yolunu çizmek. "Hayır" olunca
+  ne olacağını da mutlaka göster.
+- **Başlangıç/bitiş yok:** Her şema net bir `Başla` ile açılıp en az bir `Bitti` ile
+  kapanmalı. Nerede başlayıp nerede bittiği belirsiz şema, eksik bir algoritmadır.
+- **Belirsiz ok:** Bir karardan çıkan okların üzerinde `Evet`/`Hayır` etiketi yoksa,
+  okuyan kişi hangi durumda nereye gidileceğini bilemez.
+</Callout>
+
+[İlk yazıdaki](/blog/algoritma-nedir) kuralı hatırla: bilgisayar zeki değil,
+**itaatkârdır.** Şemandaki bu
+boşlukları o senin yerine doldurmaz; tam tersine, eksik bıraktığın her yer ileride
+bir hataya dönüşür.
+
+## Kendin dene
+
+Okuyup geçme — bir kâğıt ve kalem al, hiçbir araca ihtiyacın yok. Aşağıdaki üç
+problemi kolaydan zora çiz. Çözümü bir sonraki yazıya saklamıyoruz; ipuçları
+hemen altlarında.
+
+### Egzersiz 1 — Kapıdan geçmek (kolay)
+
+> Bir kapıdan içeri girmeye çalışıyorsun. Kapı kilitliyse önce anahtarla aç, sonra
+> içeri gir. Açıksa doğrudan içeri gir.
+
+<Callout type="note" title="İpucu">
+Tek bir karar yeterli: **"Kapı kilitli mi?"**. "Evet" yolunda önce *anahtarla aç*
+adımı olmalı, "Hayır" yolu doğrudan *içeri gir*'e gitmeli. İki yol sonunda **aynı**
+"içeri gir" adımında buluşuyor mu? Buluşuyorsa şemayı doğru kurmuşsun (bu, az önce
+gördüğümüz *tek kollu karar*).
+</Callout>
+
+### Egzersiz 2 — Çarpım tablosu (orta)
+
+> Bir sayının (örneğin 7'nin) 1'den 10'a kadar çarpımlarını alt alta yazdır:
+> 7×1, 7×2, … 7×10.
+
+<Callout type="note" title="İpucu">
+Bu bir **sayaçlı döngü**. `çarpan = 1` ile başla, `çarpan ≤ 10 mu?` diye sor, her
+turda `7 × çarpan` sonucunu yaz ve `çarpan`ı bir artır. 1'den 5'e sayma örneğini
+hatırla — neredeyse aynısı.
+</Callout>
+
+### Egzersiz 3 — En büyüğü bul (zor)
+
+> Kullanıcı arka arkaya sayılar giriyor; `0` girince duruyor. Sen de en sonunda
+> girdiği **en büyük** sayıyı söyle.
+
+<Callout type="note" title="İpucu">
+Bir **döngü** (sayı 0 olana kadar oku) ile bir **karar** (yeni sayı, şimdiye kadarki
+en büyükten büyük mü?) iç içe. Bir kenarda `enbuyuk` diye bir değer tut; her yeni
+sayı ondan büyükse `enbuyuk`u güncelle. Tıpkı bir grup insanın boyunu kıyaslarken
+"şu ana kadarki en uzun" kişiyi aklında tutman gibi.
+</Callout>
+
+Üçünü de çizdiğinde, her birini "robot arkadaşına" yüksek sesle okuyup test et:
+*Her ok bir yere gidiyor mu? Döngü bir yerde bitiyor mu? Karardan iki çıkış var mı?*
+
+## Özet
+
+<Callout type="tip" title="Cebine koy">
+- Akış şeması, algoritmayı **kutular ve oklarla** çizip tek bakışta görmenin yoludur.
+- Her algoritma üç yapı taşından kurulur: **sıra**, **karar** ve **döngü**.
+- **Karar** tek kollu ("şu olursa yap"), çift kollu ("ya bunu ya şunu") veya çok
+  kollu (kararlar zinciri) olabilir; her karardan en az iki ok çıkar.
+- **Döngü** sayaçlı ("N kere yap") ya da koşullu ("olana kadar yap") olur; üç parçası
+  vardır: başlangıç, koşul ve her turda koşulu değiştiren ilerleme adımı.
+- Karmaşık problemleri **dört adımda** şemaya dök: girdi/çıktıyı belirle, adımları
+  sırala, kararları ekle, tekrarları döngüye çevir.
+- En sık hatalar: **sonsuz döngü**, karardan tek çıkış, başlangıç/bitiş eksikliği ve
+  etiketsiz oklar.
+</Callout>

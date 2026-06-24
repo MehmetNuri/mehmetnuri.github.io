@@ -38,6 +38,7 @@ export const AUTHOR_KNOWS_ABOUT: string[] = [
 	'Spring Boot',
 	'Quarkus',
 	'JVM',
+	'Python',
 	'Sistem Tasarımı',
 	'TypeScript',
 	'Astro',

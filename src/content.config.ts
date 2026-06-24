@@ -11,6 +11,11 @@ const blog = defineCollection({
 			z.object({
 				title: z.string(),
 				description: z.string(),
+				// URL slug'ı. Verilmezse translationId'den (dosya adı) türetilir.
+				// Özellikle EN yazılarda İngilizce, SEO dostu bir slug için kullanılır
+				// (ör. EN için 'flowcharts' → /en/blog/flowcharts). translationId
+				// değişmediğinden TR↔EN hreflang eşleşmesi korunur.
+				slug: z.string().optional(),
 				pubDate: z.coerce.date(),
 				updatedDate: z.coerce.date().optional(),
 				heroImage: z.optional(image()),
