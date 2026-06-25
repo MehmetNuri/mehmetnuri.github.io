@@ -60,14 +60,20 @@ const {
 } = Astro.props;
 
 const t = useTranslations(lang);
-const ogImage = ogId ? `/open-graph/${ogId}.png` : undefined;
+// Sosyal paylaşım görseli: önce yazının kendi görseli (heroImage),
+// yoksa otomatik üretilen OG kartına (/open-graph/{ogId}.png) düş.
+const ogImage = heroImage
+	? new URL(heroImage.src, Astro.site).href
+	: ogId
+		? new URL(`/open-graph/${ogId}.png`, Astro.site).href
+		: undefined;
 const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
 const shareBtn =
 	'inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-600 transition hover:border-brand-500 hover:text-brand-600 dark:border-slate-800 dark:text-slate-400 dark:hover:text-brand-400';
 
 const siteUrl = Astro.site!.href;
 const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
-const ogAbs = new URL(ogImage ?? '/favicon.svg', Astro.site).href;
+const ogAbs = ogImage ?? new URL('/favicon.svg', Astro.site).href;
 const langCode = lang === 'en' ? 'en-US' : 'tr-TR';
 
 // Webmention.io etkileşimleri (WEBMENTION.domain boşsa boş döner).

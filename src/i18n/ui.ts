@@ -60,17 +60,20 @@ export const ui = {
 		'pager.next': 'Sonraki →',
 		// Uses (kullandıklarım)
 		'uses.title': 'Kullandıklarım',
-		'uses.subtitle': 'Her gün kullandığım donanım, yazılım ve araçlar.',
+		'uses.subtitle':
+			'Her gün kullandığım donanım, yazılım, geliştirme araçları ve uygulamalar — kurulumumun güncel ve derlenmiş bir listesi.',
 		// Now (şu an)
 		'now.title': 'Şu an ne yapıyorum',
-		'now.subtitle': 'Hayatımda ve işimde şu sıralar olan biten.',
+		'now.subtitle':
+			'Hayatımda ve işimde şu sıralar olan biten; üzerinde çalıştığım projeler, öğrendiklerim ve önümüzdeki döneme dair odağım.',
 		'now.updated': 'Güncellendi:',
 		'now.what': 'Bu bir',
 		'now.nowpage': 'now sayfası',
 		'now.inspired': 've fikir',
 		// Projects (projeler)
 		'projects.title': 'Projeler',
-		'projects.subtitle': 'Üzerinde çalıştığım ve katkıda bulunduğum açık kaynak işler.',
+		'projects.subtitle':
+			'Üzerinde çalıştığım ve katkıda bulunduğum açık kaynak işler; yan projeler, deneyler ve zamanla derlediğim araçlar.',
 		'projects.featured': 'Öne çıkanlar',
 		'projects.fromGithub': "GitHub'dan son depolar",
 		'projects.viewRepo': 'Depoyu gör',
@@ -81,16 +84,19 @@ export const ui = {
 		'colophon.subtitle': 'Bu site nasıl yapıldı — kullanılan teknolojiler ve kararlar.',
 		// Archive (arşiv)
 		'archive.title': 'Arşiv',
-		'archive.subtitle': 'Tüm yazılar, yıllara göre.',
+		'archive.subtitle':
+			'Sitedeki tüm yazıların yıllara göre derlenmiş tam listesi; algoritma serisinden kısa notlara kadar yayımladığım her şey tek yerde.',
 		'archive.allTags': 'Tüm etiketler',
 		'archive.posts': 'yazı',
 		// Bookmarks (yer imleri)
 		'bookmarks.title': 'Yer imleri',
-		'bookmarks.subtitle': 'Beğendiğim, kaydettiğim ve tavsiye ettiğim bağlantılar.',
+		'bookmarks.subtitle':
+			'Beğendiğim, kaydettiğim ve tavsiye ettiğim bağlantılar; okuduğum yazılar, faydalı araçlar ve geri dönmeye değer kaynaklar.',
 		'bookmarks.visit': 'Ziyaret et →',
 		// Notes (TIL)
 		'notes.title': 'Notlar',
-		'notes.subtitle': 'Kısa notlar ve öğrendiğim küçük şeyler (TIL).',
+		'notes.subtitle':
+			'Kısa notlar ve günlük öğrendiğim küçük şeyler (TIL); tam yazıya dönüşmeyen ipuçları, komutlar ve hızlı keşifler.',
 		'notes.empty': 'Henüz not yok — çok yakında!',
 		'notes.source': 'Kaynak',
 		'notes.back': '← Tüm notlar',
@@ -175,17 +181,20 @@ export const ui = {
 		'pager.next': 'Next →',
 		// Uses
 		'uses.title': 'Uses',
-		'uses.subtitle': 'The hardware, software and tools I use every day.',
+		'uses.subtitle':
+			'The hardware, software, development tools and apps I use every day — a current, curated rundown of my whole setup and workflow.',
 		// Now
 		'now.title': 'What I’m doing now',
-		'now.subtitle': 'What’s going on in my life and work these days.',
+		'now.subtitle':
+			'What’s going on in my life and work right now — the projects I’m focused on, what I’m learning and where my attention goes next.',
 		'now.updated': 'Updated:',
 		'now.what': 'This is a',
 		'now.nowpage': 'now page',
 		'now.inspired': 'and the idea',
 		// Projects
 		'projects.title': 'Projects',
-		'projects.subtitle': 'Open-source work I build and contribute to.',
+		'projects.subtitle':
+			'Open-source work I build and contribute to — side projects, experiments and tools I’ve put together over time.',
 		'projects.featured': 'Featured',
 		'projects.fromGithub': 'Latest repositories from GitHub',
 		'projects.viewRepo': 'View repo',
@@ -196,16 +205,19 @@ export const ui = {
 		'colophon.subtitle': 'How this site is built — the tech and the decisions behind it.',
 		// Archive
 		'archive.title': 'Archive',
-		'archive.subtitle': 'Every post, by year.',
+		'archive.subtitle':
+			'A complete, year-by-year list of everything published on the site — from the algorithms series to short notes, all in one place.',
 		'archive.allTags': 'All tags',
 		'archive.posts': 'posts',
 		// Bookmarks
 		'bookmarks.title': 'Bookmarks',
-		'bookmarks.subtitle': 'Links I like, save and recommend.',
+		'bookmarks.subtitle':
+			'Links I like, save and recommend — articles worth reading, useful tools and resources I keep coming back to.',
 		'bookmarks.visit': 'Visit →',
 		// Notes (TIL)
 		'notes.title': 'Notes',
-		'notes.subtitle': 'Short notes and small things I learn (TIL).',
+		'notes.subtitle':
+			'Short notes and small things I learn day to day (TIL) — tips, commands and quick discoveries that don’t need a full post.',
 		'notes.empty': 'No notes yet — coming soon!',
 		'notes.source': 'Source',
 		'notes.back': '← All notes',
