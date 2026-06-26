@@ -13,9 +13,11 @@ interface Props {
 	langUrls?: Partial<Record<Locale, string>>;
 	alternates?: Partial<Record<Locale, string>>;
 	jsonLd?: object | object[];
+	/** Hata/yardımcı sayfalarda arama motoruna "indeksleme" sinyali (ör. 404). */
+	noindex?: boolean;
 }
 
-const { title, description, ogImage, lang, langUrls, alternates, jsonLd } = Astro.props;
+const { title, description, ogImage, lang, langUrls, alternates, jsonLd, noindex } = Astro.props;
 ---
 
 <!doctype html>
@@ -28,6 +30,7 @@ const { title, description, ogImage, lang, langUrls, alternates, jsonLd } = Astr
 			lang={lang}
 			alternates={alternates}
 			jsonLd={jsonLd}
+			noindex={noindex}
 		/>
 	</head>
 	<body>

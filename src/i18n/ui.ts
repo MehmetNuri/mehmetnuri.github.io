@@ -23,6 +23,10 @@ export const ui = {
 		'nav.more': 'Daha fazla',
 		'site.tagline': 'Yazılım meraklısı',
 		'site.bio': 'Kod, sistem tasarımı ve öğrendiklerim üzerine yazıyorum.',
+		// Anasayfa <title> ve meta description — SEO için açıklayıcı ve anahtar kelimeli.
+		'seo.home.title': 'Mehmet Nuri Öztürk — Java, Sistem Tasarımı ve DevOps',
+		'seo.home.description':
+			'Mehmet Nuri Öztürk’ün kişisel blogu. Kurumsal Java, Spring Boot, Quarkus, mikroservisler, DevOps ve Linux üzerine Türkçe yazılar; başlangıç için algoritma, sözde kod ve akış şeması rehberleri.',
 		'home.status': 'Yeni projelere açığım',
 		'home.eyebrow': 'Merhaba, ben Mehmet Nuri',
 		'home.heading.pre': 'Yazılımla uğraşmayı seven bir',
@@ -144,6 +148,10 @@ export const ui = {
 		'nav.more': 'More',
 		'site.tagline': 'Software enthusiast',
 		'site.bio': 'I write about code, system design and the things I learn.',
+		// Homepage <title> and meta description — descriptive, keyword-rich for SEO.
+		'seo.home.title': 'Mehmet Nuri Öztürk — Java, System Design & DevOps',
+		'seo.home.description':
+			'Personal blog of Mehmet Nuri Öztürk. Articles on enterprise Java, Spring Boot, Quarkus, microservices, DevOps and Linux, plus beginner guides to algorithms, pseudocode and flowcharts from scratch.',
 		'home.status': 'Available for new projects',
 		'home.eyebrow': 'Hi, I’m Mehmet Nuri',
 		'home.heading.pre': 'Someone who loves',

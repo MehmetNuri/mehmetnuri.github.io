@@ -22,6 +22,8 @@ interface Props {
 	modifiedTime?: Date;
 	alternates?: Partial<Record<Locale, string>>;
 	jsonLd?: object | object[];
+	/** Hata/yardımcı sayfalarda arama motorlarına "indeksleme" sinyali (ör. 404). */
+	noindex?: boolean;
 }
 
 const {
@@ -35,10 +37,17 @@ const {
 	modifiedTime,
 	alternates,
 	jsonLd,
+	noindex = false,
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const ogImageURL = new URL(ogImage ?? image.src, Astro.site).href;
+// og:image yan etiketleri — alt her zaman; boyutlar yalnızca yerel görselde
+// verilir (ogImage bir URL string'i olduğunda gerçek boyut bu katmanda bilinmez).
+const ogImageMeta = {
+	alt: title,
+	...(ogImage ? {} : { width: image.width, height: image.height }),
+};
 const ogLocale = lang === 'en' ? 'en_US' : 'tr_TR';
 const hreflang: Record<Locale, string> = { tr: 'tr-TR', en: 'en-US' };
 
@@ -133,8 +142,10 @@ const swRegister = `if('serviceWorker' in navigator){window.addEventListener('lo
 	title={title}
 	description={description}
 	canonical={canonicalURL.href}
+	noindex={noindex}
 	openGraph={{
 		basic: { title, type, image: ogImageURL },
+		image: ogImageMeta,
 		optional: { description, siteName: SITE_TITLE, locale: ogLocale },
 		...(articleMeta ? { article: articleMeta } : {}),
 	}}

@@ -1,7 +1,8 @@
 // Site genelinde kullanılan global veriler.
 
 export const SITE_TITLE = 'Mehmet Nuri Öztürk';
-export const SITE_DESCRIPTION = 'Yazılım, sistem tasarımı ve öğrendiklerim üzerine kişisel blog.';
+export const SITE_DESCRIPTION =
+	'Mehmet Nuri Öztürk’ün kişisel blogu: kurumsal Java, Spring Boot, Quarkus, mikroservisler, DevOps ve sistem tasarımı üzerine Türkçe yazılar ve öğrendiklerimden notlar.';
 
 // Yazar / kimlik
 export const AUTHOR_NAME = 'Mehmet Nuri Öztürk';
@@ -16,7 +17,7 @@ export const GITHUB_USERNAME = 'MehmetNuri';
 // Diğer sosyal profiller (boş bırakılanlar atlanır). JSON-LD "sameAs" ve
 // iletişim bağlantılarında kullanılır.
 export const TWITTER_URL = ''; // 'https://x.com/kullaniciadi'
-export const LINKEDIN_URL = ''; // 'https://www.linkedin.com/in/kullaniciadi'
+export const LINKEDIN_URL = 'https://www.linkedin.com/in/mehmetnuri';
 export const MASTODON_URL = ''; // 'https://mastodon.social/@kullaniciadi'
 export const STACKOVERFLOW_URL = ''; // 'https://stackoverflow.com/users/...'
 
@@ -38,12 +39,16 @@ export const AUTHOR_KNOWS_ABOUT: string[] = [
 	'Spring Boot',
 	'Quarkus',
 	'JVM',
-	'Python',
+	'Backend Geliştirme',
+	'Mikroservisler',
 	'Sistem Tasarımı',
-	'TypeScript',
-	'Astro',
+	'DevOps',
+	'CI/CD',
 	'Podman',
 	'Linux',
+	'Python',
+	'TypeScript',
+	'Astro',
 	'Web',
 ];
 

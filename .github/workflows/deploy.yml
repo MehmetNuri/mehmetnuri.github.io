@@ -40,3 +40,29 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  # IndexNow: yayın sonrası sitemap URL'lerini Bing/Yandex'e bildir.
+  # Bing index'i ChatGPT/Copilot/Perplexity/DuckAssist'i besler → AI görünürlüğü.
+  # Küçük site olduğu için her deploy'da tüm URL listesini gönderiyoruz.
+  indexnow:
+    name: IndexNow ping
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Submit sitemap URLs to IndexNow
+        run: |
+          set -euo pipefail
+          HOST="mehmetnuri.com"
+          KEY="2ff2a8874a1b5c3c0523de3daa8e23af"
+          # Sitemap'ten <loc> URL'lerini çek (tek sitemap; büyürse index'i de gez).
+          urls="$(curl -fsSL "https://${HOST}/sitemap-0.xml" \
+            | grep -oE '<loc>[^<]+</loc>' | sed -E 's#</?loc>##g')"
+          count="$(printf '%s\n' "$urls" | grep -c . || true)"
+          echo "Submitting ${count} URLs to IndexNow"
+          body="$(printf '%s\n' "$urls" | jq -R . | jq -s \
+            --arg host "$HOST" --arg key "$KEY" \
+            --arg keyloc "https://${HOST}/${KEY}.txt" \
+            '{host: $host, key: $key, keyLocation: $keyloc, urlList: .}')"
+          curl -fsS -X POST "https://api.indexnow.org/indexnow" \
+            -H "Content-Type: application/json; charset=utf-8" \
+            --data "$body" -w "IndexNow response: HTTP %{http_code}\n" -o /dev/null

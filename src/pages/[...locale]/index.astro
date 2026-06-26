@@ -4,7 +4,7 @@ import Emoji from 'astro-emoji';
 import { Button } from '../../components/starwind/button';
 import FormattedDate from '../../components/FormattedDate.astro';
 import { getPostsByLocale, postSlug } from '../../lib/utils';
-import { SITE_TITLE, SITE_DESCRIPTION, GITHUB_URL } from '../../consts';
+import { GITHUB_URL } from '../../consts';
 import { locales, type Locale, defaultLocale, localizePath, useTranslations } from '../../i18n/ui';
 import { websiteSchema, personSchema } from '../../lib/seo';
 
@@ -64,7 +64,7 @@ const siteUrl = Astro.site!.href;
 const jsonLd = [websiteSchema(siteUrl, lang === 'en' ? 'en-US' : 'tr-TR'), personSchema(siteUrl, lang)];
 ---
 
-<Base title={SITE_TITLE} description={SITE_DESCRIPTION} lang={lang} jsonLd={jsonLd}>
+<Base title={t('seo.home.title')} description={t('seo.home.description')} lang={lang} jsonLd={jsonLd}>
 	<main class="mx-auto w-full max-w-5xl flex-1 px-4 py-16 sm:px-6">
 		<!-- Hero -->
 		<section class="grid items-center gap-10 lg:grid-cols-2">
