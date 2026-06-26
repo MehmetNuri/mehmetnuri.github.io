@@ -37,6 +37,13 @@ export const ui = {
 		'home.recent': 'Son yazılar',
 		'home.all': 'Tümü →',
 		'home.empty': 'Henüz yazı yok — çok yakında ilk yazı burada olacak.',
+		'home.about.title': 'Bu blogda ne bulacaksın?',
+		'home.about.p1':
+			'Yazılımla uğraşmayı seven, öğrendiklerini paylaşmaktan keyif alan meraklı biriyim. Bu blog; gündelik işlerde karşılaştığım problemleri, denediğim çözümleri ve yol boyunca öğrendiklerimi not aldığım yer. Amacım, bir konuyu kendim anlarken çıkardığım notları aynı yolu yürüyen başkalarının da işine yarayacak biçimde toparlamak.',
+		'home.about.p2':
+			'Yazıların ağırlık merkezi backend ve sistem tarafında: kurumsal Java, Spring Boot ve Quarkus ile servis geliştirme, mikroservis mimarileri, JVM’in nasıl çalıştığı, sistem tasarımı kararları ve bütün bunları ayakta tutan DevOps tarafı — Linux, konteynerler (Podman) ve sürekli entegrasyon (CI/CD). Zaman zaman Python, TypeScript ve web tarafına da uğruyorum.',
+		'home.about.p3':
+			'Bunların yanında, programlamaya yeni başlayanlar için sıfırdan bir başlangıç serisi yazıyorum: algoritma nedir, akış şemaları nasıl çizilir, sözde kod nasıl yazılır gibi temelleri kod yazmadan, gündelik örneklerle anlatıyorum. İster yıllardır kod yazıyor ol ister ilk adımını atıyor, burada işine yarayacak bir şeyler bulmanı umuyorum.',
 		'blog.title': 'Blog',
 		'blog.subtitle': 'Yazılım, sistem tasarımı ve yol boyunca öğrendiklerim.',
 		'blog.empty': 'Henüz yazı yok — çok yakında!',
@@ -162,6 +169,13 @@ export const ui = {
 		'home.recent': 'Latest posts',
 		'home.all': 'All →',
 		'home.empty': 'No posts yet — the first one will be here soon.',
+		'home.about.title': 'What you’ll find here',
+		'home.about.p1':
+			'I’m someone who loves building software and enjoys sharing what I learn. This blog is where I keep notes on the problems I run into, the solutions I try and the lessons I pick up along the way — written so they stay useful to anyone walking a similar path.',
+		'home.about.p2':
+			'The center of gravity is backend and systems: building services with enterprise Java, Spring Boot and Quarkus, microservice architectures, how the JVM actually works, system design trade-offs and the DevOps side that keeps it all running — Linux, containers (Podman) and continuous integration (CI/CD). Now and then I wander into Python, TypeScript and the web.',
+		'home.about.p3':
+			'Alongside that, I write a from-scratch series for people new to programming: what an algorithm is, how to draw flowcharts and how to write pseudocode — explained with everyday examples, no code required. Whether you’ve been shipping code for years or you’re taking your very first step, I hope you’ll find something useful here.',
 		'blog.title': 'Blog',
 		'blog.subtitle': 'Software, system design and lessons from the road.',
 		'blog.empty': 'No posts yet — coming soon!',
