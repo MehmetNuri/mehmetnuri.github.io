@@ -1,0 +1,254 @@
+---
+import Base from '../../layouts/Base.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+import { Badge } from '../../components/starwind/badge';
+import { getPostsByLocale, postSlug, readingMinutes } from '../../lib/utils';
+import { collectionPageSchema, breadcrumbSchema } from '../../lib/seo';
+import { SITE_TITLE } from '../../consts';
+import {
+	locales,
+	type Locale,
+	defaultLocale,
+	localizePath,
+	useTranslations,
+	formatReadingTime,
+} from '../../i18n/ui';
+
+export function getStaticPaths() {
+	return locales.map((lang) => ({
+		params: { locale: lang === defaultLocale ? undefined : lang },
+		props: { lang },
+	}));
+}
+
+const { lang } = Astro.props as { lang: Locale };
+const t = useTranslations(lang);
+const en = lang === 'en';
+
+// Red Hat / Linux ile ilgili yazılar: "Red Hat" serisi, Linux kategorisi ya da
+// red-hat / rhel / linux etiketi taşıyanlar.
+const all = await getPostsByLocale(lang);
+const redHatPosts = all.filter((p) => {
+	const tags = (p.data.tags ?? []).map((x) => x.toLowerCase());
+	const cat = (p.data.category ?? '').toLowerCase();
+	const series = (p.data.series ?? '').toLowerCase();
+	return (
+		series === 'red hat' ||
+		cat === 'linux' ||
+		cat.includes('red hat') ||
+		tags.some((x) => x === 'red-hat' || x === 'rhel' || x === 'linux')
+	);
+});
+
+// Bir yazının dilden bağımsız kimliği (TR dosya adı). Yol haritasındaki
+// planlı bölümleri yayımlanmış yazılarla eşlemek için kullanılır.
+const baseId = (p: (typeof all)[number]) =>
+	((p.data.translationId || p.id).split('/').pop() || p.id).replace(/\.(md|mdx)$/i, '');
+const byId = new Map(all.map((p) => [baseId(p), p]));
+
+const title = en
+	? 'Red Hat — RHEL and Linux system administration from scratch'
+	: 'Red Hat — sıfırdan RHEL ve Linux sistem yönetimi';
+const description = en
+	? 'A step-by-step series on Red Hat Enterprise Linux from zero: installation, the terminal, the file system, users, packages, systemd, networking, storage, SELinux and Podman. A friendly path toward RHCSA.'
+	: 'Red Hat Enterprise Linux üzerine sıfırdan, adım adım bir seri: kurulum, terminal, dosya sistemi, kullanıcılar, paketler, systemd, ağ, disk, SELinux ve Podman. RHCSA yolunun samimi bir rehberi.';
+
+// Alt konu başlıkları (topical authority sinyali + iç gezinme).
+const subtopics = en
+	? [
+			{ name: 'Fundamentals & installation', desc: 'What Linux is, the Red Hat story, installing RHEL.' },
+			{ name: 'Terminal & file system', desc: 'The shell, commands, the directory tree, pipes and vim.' },
+			{ name: 'Users & permissions', desc: 'root, sudo, groups, rwx and the special bits.' },
+			{ name: 'Packages & services', desc: 'RPM, dnf, systemd and processes.' },
+			{ name: 'Networking, storage & security', desc: 'SSH, LVM, SELinux and firewalld.' },
+			{ name: 'Containers & certification', desc: 'Podman and the RHCSA / RHCE path.' },
+		]
+	: [
+			{ name: 'Temeller ve kurulum', desc: 'Linux nedir, Red Hat’in hikâyesi, RHEL’i kurmak.' },
+			{ name: 'Terminal ve dosya sistemi', desc: 'Kabuk, komutlar, dizin ağacı, borular ve vim.' },
+			{ name: 'Kullanıcılar ve izinler', desc: 'root, sudo, gruplar, rwx ve özel bitler.' },
+			{ name: 'Paketler ve servisler', desc: 'RPM, dnf, systemd ve süreçler.' },
+			{ name: 'Ağ, disk ve güvenlik', desc: 'SSH, LVM, SELinux ve firewalld.' },
+			{ name: 'Konteynerler ve sertifika', desc: 'Podman ve RHCSA / RHCE yolu.' },
+		];
+
+// Seri yol haritası. `id` = TR dosya adı (translationId). Yazı yayımlanınca
+// otomatik olarak linke dönüşür; yayımlanmayanlar "yakında" görünür.
+const roadmap: { id: string; tr: string; en: string }[] = [
+	{ id: 'red-hat-nedir', tr: 'Red Hat Nedir?', en: 'What Is Red Hat?' },
+	{ id: 'rhel-kurulumu', tr: 'RHEL Kurulumu', en: 'Installing RHEL' },
+	{ id: 'terminal-ve-kabuk', tr: 'Terminal ve Kabuk', en: 'The Terminal and the Shell' },
+	{ id: 'linux-dosya-sistemi', tr: 'Linux Dosya Sistemi', en: 'The Linux File System' },
+	{ id: 'borular-ve-vim', tr: 'Yönlendirme, Borular ve vim', en: 'Redirection, Pipes and vim' },
+	{ id: 'kullanicilar-ve-izinler', tr: 'Kullanıcılar ve İzinler', en: 'Users and Permissions' },
+	{ id: 'paketler-rpm-dnf', tr: 'Paketler: RPM ve dnf', en: 'Packages: RPM and dnf' },
+	{ id: 'systemd-servisler', tr: 'systemd ile Servisler', en: 'Services with systemd' },
+	{ id: 'surecler-ve-zamanlama', tr: 'Süreçler ve Zamanlama', en: 'Processes and Scheduling' },
+	{ id: 'ag-ve-ssh', tr: 'Ağ ve SSH', en: 'Networking and SSH' },
+	{ id: 'disk-ve-lvm', tr: 'Diskler ve LVM', en: 'Disks and LVM' },
+	{ id: 'selinux', tr: 'SELinux', en: 'SELinux' },
+	{ id: 'firewalld', tr: 'firewalld', en: 'firewalld' },
+	{ id: 'podman-konteynerler', tr: 'Podman ile Konteynerler', en: 'Containers with Podman' },
+	{ id: 'red-hat-son-adimlar', tr: 'Son Adımlar ve RHCSA Yolu', en: 'Final Steps and the RHCSA Path' },
+];
+const published = roadmap.filter((r) => byId.has(r.id)).length;
+
+const siteUrl = Astro.site!.href;
+const pageUrl = new URL(localizePath(lang, '/red-hat'), Astro.site).href;
+const jsonLd = [
+	collectionPageSchema({ url: pageUrl, name: 'Red Hat', description, lang: en ? 'en-US' : 'tr-TR', siteUrl }),
+	breadcrumbSchema([
+		{ name: t('nav.home'), url: new URL(localizePath(lang, '/'), Astro.site).href },
+		{ name: 'Red Hat', url: pageUrl },
+	]),
+];
+
+const langUrls = Object.fromEntries(
+	locales.map((l) => [l, localizePath(l, '/red-hat')]),
+) as Partial<Record<Locale, string>>;
+---
+
+<Base
+	title={`${title} — ${SITE_TITLE}`}
+	description={description}
+	lang={lang}
+	langUrls={langUrls}
+	jsonLd={jsonLd}
+>
+	<main class="mx-auto w-full max-w-4xl flex-1 px-4 py-16 sm:px-6">
+		<header class="mb-12" data-reveal>
+			<div class="flex items-center gap-3">
+				<span class="grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-red-500 to-red-700 text-white shadow-lg">
+					<!-- Red Hat logosu (Simple Icons). Red Hat, Red Hat Inc.'in tescilli markasıdır; burada seriyi tanıtmak için kullanılıyor. -->
+					<svg class="size-7" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+						<path d="M16.009 13.386c1.577 0 3.86-.326 3.86-2.202a1.765 1.765 0 0 0-.04-.431l-.94-4.08c-.216-.898-.406-1.305-1.982-2.093-1.223-.625-3.888-1.658-4.676-1.658-.733 0-.947.946-1.822.946-.842 0-1.467-.706-2.255-.706-.757 0-1.25.515-1.63 1.576 0 0-1.06 2.99-1.197 3.424a.81.81 0 0 0-.028.245c0 1.162 4.577 4.974 10.71 4.974m4.101-1.435c.218 1.032.218 1.14.218 1.277 0 1.765-1.984 2.745-4.593 2.745-5.895.004-11.06-3.451-11.06-5.734a2.326 2.326 0 0 1 .19-.925C2.746 9.415 0 9.794 0 12.217c0 3.969 9.405 8.861 16.851 8.861 5.71 0 7.149-2.582 7.149-4.62 0-1.605-1.387-3.425-3.887-4.512"></path>
+					</svg>
+				</span>
+				<h1 class="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">Red Hat</h1>
+			</div>
+			<p class="mt-4 max-w-2xl text-lg text-pretty text-slate-600 dark:text-slate-400">{description}</p>
+		</header>
+
+		<!-- Alt konular -->
+		<section class="mb-14" data-reveal>
+			<h2 class="mb-5 text-xl font-semibold text-slate-900 dark:text-white">
+				{en ? 'Topics' : 'Konu başlıkları'}
+			</h2>
+			<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+				{
+					subtopics.map((s) => (
+						<div class="surface card-hover p-5">
+							<h3 class="font-semibold text-slate-900 dark:text-white">{s.name}</h3>
+							<p class="mt-1 text-sm text-slate-600 dark:text-slate-400">{s.desc}</p>
+						</div>
+					))
+				}
+			</div>
+		</section>
+
+		<!-- Seri yol haritası -->
+		<section class="mb-14" data-reveal>
+			<div class="mb-5 flex flex-wrap items-baseline justify-between gap-2">
+				<h2 class="text-xl font-semibold text-slate-900 dark:text-white">
+					{en ? 'Series roadmap' : 'Seri yol haritası'}
+				</h2>
+				<span class="text-sm text-slate-500 dark:text-slate-400">
+					{en
+						? `${published} of ${roadmap.length} parts published`
+						: `${roadmap.length} bölümden ${published} tanesi yayında`}
+				</span>
+			</div>
+			<p class="mb-5 max-w-2xl text-sm text-slate-600 dark:text-slate-400">
+				{en
+					? 'The series follows the RHCSA syllabus loosely, but it is written for someone sitting at a Linux machine for the first time. Titles may change a little as the parts get written.'
+					: 'Seri kabaca RHCSA müfredatını izliyor ama bir Linux makinesinin başına ilk kez oturan biri için yazılıyor. Bölümler yazıldıkça başlıklar biraz değişebilir.'}
+			</p>
+			<ol class="surface divide-y divide-slate-200/70 dark:divide-slate-800">
+				{
+					roadmap.map((r, i) => {
+						const post = byId.get(r.id);
+						const label = en ? r.en : r.tr;
+						return (
+							<li class="flex items-center gap-4 px-5 py-3">
+								<span class="w-7 shrink-0 text-right text-sm tabular-nums text-slate-400 dark:text-slate-500">
+									{i + 1}
+								</span>
+								{post ? (
+									<a
+										href={localizePath(lang, `/blog/${postSlug(post)}`)}
+										class="min-w-0 flex-1 font-medium text-slate-900 hover:text-brand-600 dark:text-white dark:hover:text-brand-400"
+									>
+										{post.data.title}
+									</a>
+								) : (
+									<span class="min-w-0 flex-1 text-slate-500 dark:text-slate-400">{label}</span>
+								)}
+								{post ? (
+									<span class="shrink-0 text-xs text-slate-500 dark:text-slate-400">
+										<FormattedDate date={post.data.pubDate} lang={lang} />
+									</span>
+								) : (
+									<Badge variant="secondary" size="sm">
+										{en ? 'coming soon' : 'yakında'}
+									</Badge>
+								)}
+							</li>
+						);
+					})
+				}
+			</ol>
+		</section>
+
+		<!-- Red Hat / Linux yazıları -->
+		<section data-reveal>
+			<h2 class="mb-5 text-xl font-semibold text-slate-900 dark:text-white">
+				{en ? 'All Red Hat & Linux posts' : 'Tüm Red Hat ve Linux yazıları'}
+			</h2>
+			{
+				redHatPosts.length === 0 ? (
+					<div class="surface p-6 text-slate-600 dark:text-slate-400">
+						{en
+							? 'The first Red Hat posts are on the way — check back soon, or read the blog in the meantime.'
+							: 'İlk Red Hat yazıları yolda — yakında tekrar uğra ya da bu arada bloga göz at.'}
+						<a
+							href={localizePath(lang, '/blog')}
+							class="ml-1 text-brand-600 hover:underline dark:text-brand-400"
+						>
+							{t('nav.blog')} →
+						</a>
+					</div>
+				) : (
+					<ul class="space-y-3">
+						{redHatPosts.map((p) => (
+							<li class="surface card-hover p-5">
+								<a href={localizePath(lang, `/blog/${postSlug(p)}`)} class="group block">
+									<div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+										<FormattedDate date={p.data.pubDate} lang={lang} />
+										<span>·</span>
+										<span>{formatReadingTime(readingMinutes(p.body), lang)}</span>
+										{p.data.category && <span>· {p.data.category}</span>}
+									</div>
+									<h3 class="mt-1.5 font-semibold text-slate-900 transition group-hover:text-brand-600 dark:text-white dark:group-hover:text-brand-400">
+										{p.data.title}
+									</h3>
+									{p.data.description && (
+										<p class="mt-1 text-sm text-slate-600 dark:text-slate-400">{p.data.description}</p>
+									)}
+									{p.data.tags.length > 0 && (
+										<div class="mt-2 flex flex-wrap gap-1.5">
+											{p.data.tags.slice(0, 4).map((tag) => (
+												<Badge variant="secondary" size="sm">
+													#{tag}
+												</Badge>
+											))}
+										</div>
+									)}
+								</a>
+							</li>
+						))}
+					</ul>
+				)
+			}
+		</section>
+	</main>
+</Base>

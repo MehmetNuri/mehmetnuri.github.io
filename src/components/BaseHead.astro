@@ -16,6 +16,9 @@ interface Props {
 	description: string;
 	image?: ImageMetadata;
 	ogImage?: string;
+	/** ogImage bir URL olduğunda gerçek boyutlar (örn. hero görselinin metadata'sından). */
+	ogImageWidth?: number;
+	ogImageHeight?: number;
 	lang?: Locale;
 	type?: 'website' | 'article';
 	publishedTime?: Date;
@@ -31,6 +34,8 @@ const {
 	description,
 	image = FallbackImage,
 	ogImage,
+	ogImageWidth,
+	ogImageHeight,
 	lang = defaultLocale,
 	type = 'website',
 	publishedTime,
@@ -46,7 +51,11 @@ const ogImageURL = new URL(ogImage ?? image.src, Astro.site).href;
 // verilir (ogImage bir URL string'i olduğunda gerçek boyut bu katmanda bilinmez).
 const ogImageMeta = {
 	alt: title,
-	...(ogImage ? {} : { width: image.width, height: image.height }),
+	...(ogImage
+		? ogImageWidth && ogImageHeight
+			? { width: ogImageWidth, height: ogImageHeight }
+			: {}
+		: { width: image.width, height: image.height }),
 };
 const ogLocale = lang === 'en' ? 'en_US' : 'tr_TR';
 const hreflang: Record<Locale, string> = { tr: 'tr-TR', en: 'en-US' };

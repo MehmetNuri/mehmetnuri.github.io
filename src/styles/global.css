@@ -279,6 +279,8 @@
 	--mm-node-stroke: #6366f1; /* düğüm kenar — brand-500 */
 	--mm-text: #0f172a; /* düğüm metni — slate-900 */
 	--mm-note: #475569; /* açıklama metni — slate-600 */
+	--mm-cluster-fill: rgba(148, 163, 184, 0.08); /* alt grup dolgu */
+	--mm-cluster-stroke: rgba(100, 116, 139, 0.45);
 }
 [data-theme='dark'] {
 	--mm-line: #94a3b8; /* slate-400 */
@@ -286,6 +288,8 @@
 	--mm-node-stroke: #818cf8; /* brand-400 */
 	--mm-text: #e2e8f0; /* slate-200 */
 	--mm-note: #cbd5e1; /* slate-300 */
+	--mm-cluster-fill: rgba(148, 163, 184, 0.07);
+	--mm-cluster-stroke: rgba(148, 163, 184, 0.4);
 }
 
 /* Diyagram kutusu prose'un koyu <pre> arka planını ve SVG arka planını almasın */
@@ -341,6 +345,20 @@ pre.mermaid svg .edgeLabel rect {
 	opacity: 0 !important;
 }
 
+/* Alt gruplar (subgraph / cluster): mermaid'in sarı varsayılanı yerine tema rengi */
+pre.mermaid svg .cluster rect,
+pre.mermaid svg g.cluster > rect {
+	fill: var(--mm-cluster-fill) !important;
+	stroke: var(--mm-cluster-stroke) !important;
+	rx: 8px;
+}
+pre.mermaid svg .cluster-label :is(.nodeLabel, span, p, div),
+pre.mermaid svg .cluster-label text {
+	color: var(--mm-note) !important;
+	fill: var(--mm-note) !important;
+	font-weight: 600;
+}
+
 /* Şekil sözlüğü: açıklama (note) düğümleri düz metin gibi, her temada okunur */
 pre.mermaid svg g.node.note :is(.nodeLabel, .label, span, p),
 pre.mermaid svg g.node.note foreignObject div {
@@ -348,4 +366,182 @@ pre.mermaid svg g.node.note foreignObject div {
 }
 pre.mermaid svg g.node.note text {
 	fill: var(--mm-note) !important;
+}
+
+/* ── Mermaid büyütme (src/scripts/mermaid-zoom.ts) ──────────────────────
+   Her diyagramın sağ üstünde "Büyüt" düğmesi; tıklayınca tam ekran, yakınlaştırılabilir
+   görüntüleyici. Klon `pre.mermaid` olarak eklendiği için yukarıdaki tema renkleri
+   orada da geçerlidir. */
+:root {
+	--mm-btn-bg: rgba(255, 255, 255, 0.85);
+	--mm-btn-fg: #334155; /* slate-700 */
+	--mm-btn-border: rgba(100, 116, 139, 0.35);
+	--mm-lb-bg: rgba(248, 250, 252, 0.985); /* slate-50 */
+	--mm-lb-panel: rgba(255, 255, 255, 0.92);
+	--mm-lb-fg: #0f172a;
+	--mm-lb-muted: #64748b;
+}
+[data-theme='dark'] {
+	--mm-btn-bg: rgba(15, 23, 42, 0.8);
+	--mm-btn-fg: #cbd5e1; /* slate-300 */
+	--mm-btn-border: rgba(148, 163, 184, 0.3);
+	--mm-lb-bg: rgba(2, 6, 23, 0.97); /* slate-950 */
+	--mm-lb-panel: rgba(15, 23, 42, 0.9);
+	--mm-lb-fg: #e2e8f0;
+	--mm-lb-muted: #94a3b8;
+}
+
+.mm-wrap {
+	position: relative;
+}
+.mm-wrap > pre.mermaid {
+	cursor: zoom-in;
+}
+.mm-zoom-btn {
+	position: absolute;
+	top: 0.5rem;
+	right: 0.5rem;
+	z-index: 2;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	padding: 0.35rem 0.65rem;
+	font-size: 0.75rem;
+	font-weight: 500;
+	line-height: 1;
+	border-radius: 9999px;
+	border: 1px solid var(--mm-btn-border);
+	background: var(--mm-btn-bg);
+	color: var(--mm-btn-fg);
+	backdrop-filter: blur(4px);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+	cursor: pointer;
+	transition:
+		opacity 0.15s,
+		transform 0.15s;
+}
+.mm-zoom-btn svg {
+	width: 0.85rem;
+	height: 0.85rem;
+}
+.mm-zoom-btn:hover,
+.mm-zoom-btn:focus-visible {
+	transform: translateY(-1px);
+	opacity: 1;
+}
+@media (hover: hover) {
+	.mm-wrap .mm-zoom-btn {
+		opacity: 0.7;
+	}
+	.mm-wrap:hover .mm-zoom-btn {
+		opacity: 1;
+	}
+}
+
+.mm-lightbox {
+	position: fixed;
+	inset: 0;
+	z-index: 100;
+	background: var(--mm-lb-bg);
+	color: var(--mm-lb-fg);
+	backdrop-filter: blur(8px);
+	animation: mm-fade 0.15s ease-out;
+}
+@keyframes mm-fade {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+.mm-lb-stage {
+	position: absolute;
+	inset: 0;
+	overflow: hidden;
+	touch-action: none;
+	cursor: grab;
+	user-select: none;
+}
+.mm-lb-stage.dragging {
+	cursor: grabbing;
+}
+.mm-lb-canvas {
+	position: absolute;
+	left: 0;
+	top: 0;
+	transform-origin: 0 0;
+	will-change: transform;
+}
+.mm-lb-canvas pre.mermaid {
+	display: block !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	min-height: 0 !important;
+	overflow: visible !important;
+	background: transparent !important;
+	border-radius: 0 !important;
+	cursor: inherit;
+}
+.mm-lb-canvas pre.mermaid svg {
+	width: var(--mm-w) !important;
+	height: var(--mm-h) !important;
+	max-width: none !important;
+	display: block;
+}
+.mm-lb-toolbar {
+	position: absolute;
+	top: 0.75rem;
+	right: 0.75rem;
+	z-index: 2;
+	display: flex;
+	align-items: center;
+	gap: 0.15rem;
+	padding: 0.25rem;
+	border-radius: 0.75rem;
+	background: var(--mm-lb-panel);
+	border: 1px solid var(--mm-btn-border);
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+	backdrop-filter: blur(6px);
+}
+.mm-lb-toolbar button {
+	min-width: 2.1rem;
+	height: 2.1rem;
+	padding: 0 0.6rem;
+	border-radius: 0.5rem;
+	font-size: 1rem;
+	line-height: 1;
+	color: inherit;
+	cursor: pointer;
+}
+.mm-lb-toolbar button:hover,
+.mm-lb-toolbar button:focus-visible {
+	background: rgba(148, 163, 184, 0.22);
+}
+.mm-lb-toolbar button[data-act='fit'] {
+	font-size: 0.8rem;
+}
+.mm-lb-scale {
+	min-width: 3.4rem;
+	text-align: center;
+	font-size: 0.75rem;
+	font-variant-numeric: tabular-nums;
+	color: var(--mm-lb-muted);
+}
+.mm-lb-hint {
+	position: absolute;
+	bottom: 0.75rem;
+	left: 50%;
+	transform: translateX(-50%);
+	margin: 0;
+	padding: 0.3rem 0.7rem;
+	border-radius: 9999px;
+	background: var(--mm-lb-panel);
+	font-size: 0.72rem;
+	color: var(--mm-lb-muted);
+	white-space: nowrap;
+	pointer-events: none;
+	max-width: calc(100vw - 2rem);
+	overflow: hidden;
+	text-overflow: ellipsis;
 }

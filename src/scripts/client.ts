@@ -1,3 +1,4 @@
+import { initMermaidZoom } from './mermaid-zoom';
 // Merkezi istemci etkileşimleri — Astro ClientRouter (View Transitions) uyumlu.
 // Sayfaya özel başlatma `astro:page-load`'da çalışır; global dinleyiciler bir kez bağlanır.
 
@@ -372,6 +373,7 @@ function pageInit() {
 	initCopyLink();
 	initCodeGroups();
 	initZoom();
+	initMermaidZoom();
 	initGiscus();
 	initCountUp();
 }

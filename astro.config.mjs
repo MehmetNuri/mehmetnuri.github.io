@@ -27,7 +27,14 @@ export default defineConfig({
 	},
 	integrations: [
 		// Mermaid, kod bloklarını işleyen diğer entegrasyonlardan (EC) ÖNCE gelmeli.
-		mermaid({ theme: 'default', autoTheme: true }),
+		mermaid({
+			theme: 'default',
+			autoTheme: true,
+			// Diyagramlar sütuna sığsın diye düğüm/sıra aralıklarını sıkılaştır (varsayılan 50/50).
+			mermaidConfig: {
+				flowchart: { nodeSpacing: 28, rankSpacing: 32, padding: 8 },
+			},
+		}),
 		// Expressive Code, mdx()'ten ÖNCE gelmeli.
 		expressiveCode({
 			themes: ['github-dark', 'github-light'],
@@ -65,7 +72,7 @@ export default defineConfig({
 				const u = item.url;
 				// Anasayfa en yüksek, içerik yüksek, yardımcı sayfalar düşük öncelik.
 				if (/^https?:\/\/[^/]+\/(en\/)?$/.test(u)) item.priority = 1.0;
-				else if (/\/(blog|java|notes)(\/|$)/.test(u)) item.priority = 0.8;
+				else if (/\/(blog|java|red-hat|notes)(\/|$)/.test(u)) item.priority = 0.8;
 				else if (/\/(etiket|kategori|archive|page)\//.test(u)) item.priority = 0.5;
 				else item.priority = 0.6;
 				item.changefreq = 'weekly';
