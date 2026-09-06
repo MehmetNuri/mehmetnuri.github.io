@@ -97,6 +97,10 @@ interface BlogPostingInput {
 	articleSection?: string;
 	/** Teknik içerik için BlogPosting yerine TechArticle tipi kullan. */
 	tech?: boolean;
+	/** Tahmini okuma süresi (dakika) → ISO 8601 `timeRequired` (ör. PT12M). */
+	minutesRead?: number;
+	/** TechArticle için hedef kitle seviyesi (schema.org: Beginner | Expert). */
+	proficiencyLevel?: 'Beginner' | 'Expert';
 }
 
 /** Tek bir blog yazısı (BlogPosting/TechArticle) — zengin sonuçlar için. */
@@ -115,6 +119,8 @@ export function blogPostingSchema(input: BlogPostingInput) {
 		...(input.keywords && input.keywords.length ? { keywords: input.keywords.join(', ') } : {}),
 		...(input.wordCount ? { wordCount: input.wordCount } : {}),
 		...(input.articleSection ? { articleSection: input.articleSection } : {}),
+		...(input.minutesRead ? { timeRequired: `PT${Math.max(1, Math.round(input.minutesRead))}M` } : {}),
+		...(input.tech && input.proficiencyLevel ? { proficiencyLevel: input.proficiencyLevel } : {}),
 		isPartOf: { '@id': `${input.siteUrl}#website` },
 		author: { '@type': 'Person', '@id': `${input.siteUrl}#person`, name: AUTHOR_NAME, url: input.siteUrl },
 		publisher: { '@id': `${input.siteUrl}#person` },

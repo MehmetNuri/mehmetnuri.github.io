@@ -368,6 +368,17 @@ pre.mermaid svg g.node.note text {
 	fill: var(--mm-note) !important;
 }
 
+/* ── Görsel büyütme (medium-zoom, src/scripts/client.ts initZoom) ───────
+   Kütüphane overlay'i ve büyütülmüş kopyayı body'ye z-index'siz ekler. Expressive Code
+   kod bloklarının başlık çubuğu ve kopyala düğmesi (z-index 1) ile tam ekran düğmesi (100)
+   kök yığın bağlamında onların üstüne çıkıyordu; katmanı mermaid lightbox'la aynı seviyeye alıyoruz. */
+.medium-zoom-overlay {
+	z-index: 100;
+}
+.medium-zoom-image--opened {
+	z-index: 101;
+}
+
 /* ── Mermaid büyütme (src/scripts/mermaid-zoom.ts) ──────────────────────
    Her diyagramın sağ üstünde "Büyüt" düğmesi; tıklayınca tam ekran, yakınlaştırılabilir
    görüntüleyici. Klon `pre.mermaid` olarak eklendiği için yukarıdaki tema renkleri
