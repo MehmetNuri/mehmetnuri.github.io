@@ -36,6 +36,8 @@ faq:
     a: 'By the rule of automatic partitioning: if the disk is larger than 50 GiB, Anaconda opens a separate /home logical volume for user files, so that they can be preserved even if you reinstall the system. On a 30 GB disk this partition is not created and everything stays in the root partition. On my machine, with an 87.7 GiB disk, the layout was: 1 MiB biosboot, 2 GiB /boot, and the rest inside LVM as a 54.3 GiB root, 4.8 GiB swap and 26.5 GiB /home, all with the XFS file system.'
   - q: 'What are the first things to do after installation?'
     a: 'In order: register the machine with your Red Hat account (subscription-manager register), update the whole system (sudo dnf update -y) and reboot, then take a "clean install" snapshot of the virtual machine. After that you can experiment as much as you like and roll back to that snapshot if you break something. Optionally, enable the Cockpit web console and watch the machine from a browser as well.'
+  - q: 'Can I install RHEL on a real computer, or is a virtual machine required?'
+    a: 'A virtual machine is not required; we use one in this series because it is safe, but you can install RHEL straight onto a real computer. The only difference is at the start: you write the ISO to a USB stick with Fedora Media Writer, balenaEtcher, Rufus or dd, then boot the computer from that USB via the BIOS/UEFI boot menu (F12 on most machines). The Anaconda screens are the same in both. Careful: a real disk holds your own data; Automatic partitioning uses the free space, but always back up before installing. If you want to keep it on the same disk as Windows you need dual boot, which is a more advanced topic.'
 ---
 
 import Callout from '../../components/Callout.astro';
@@ -299,9 +301,80 @@ is really bytes" from part 1: an entire disk can sit on another disk as a single
 copying that file is enough.
 </Callout>
 
+## Alternative: installing on a real machine
+
+Throughout this series we'll use a virtual machine; it's the safest way to learn, because if you break something
+you roll back to a snapshot and your host computer is untouched. But you may also want to install RHEL on a real
+computer, straight onto the hardware: to turn an old laptop into a Linux lab, to get full performance, or to set
+up a server. Two things then change; you write the installation medium to a **USB stick** and boot the machine
+from that USB through the **BIOS/UEFI**. From there on it's the same Anaconda screens you're about to see.
+
+<Callout type="caution" title="Back up first: a real disk holds real data">
+On the virtual machine the disk was empty; there was nothing to lose if you got it wrong. On a real computer that
+disk holds your photos, your documents, maybe your Windows. With "Automatic" the installer tries to use the free
+space on the disk, but the option to wipe the disk entirely is one click away. Before installing, **back up
+everything important to another disk or the cloud.** The steps here are for an empty or expendable computer.
+</Callout>
+
+### 1. Writing the ISO to a USB stick
+
+The ISO you downloaded is a disc image; copying it onto the USB like a file isn't enough, it has to be "written"
+(flashed). A 4 GB stick is enough for the Boot ISO, 16 GB for the DVD ISO; the process erases everything on the
+stick. Tools:
+
+| Tool | Platform | Note |
+| --- | --- | --- |
+| **Fedora Media Writer** | Windows, macOS, Linux | The easiest: pick the ISO and the USB, Write. A perfect fit for the Red Hat family. |
+| **balenaEtcher** | Windows, macOS, Linux | Simple and visual; writes in three steps. |
+| **Rufus** | Windows | Advanced; if asked, choose **DD Image** mode. |
+| **`dd`** | Linux, macOS | Command line; the fastest but the most dangerous. |
+
+For those who like the command line, `dd` (Linux). First find the USB's name with `lsblk` (e.g. `/dev/sdb`); **if
+you pick the wrong disk you erase its contents,** so check twice:
+
+```bash title="Writing to the USB with dd (Linux)" showLineNumbers=false
+lsblk
+sudo dd if=rhel-10.2-x86_64-boot.iso of=/dev/sdb bs=4M status=progress oflag=sync
+```
+
+On macOS the same job is done by finding the disk with `diskutil list` and running `sudo dd if=... of=/dev/rdiskN bs=4m`.
+
+### 2. Booting from the USB: BIOS/UEFI
+
+Turn the computer off, plug in the USB, turn it on, and while the boot logo shows, press the **boot menu** key. The
+key varies by manufacturer; a line like "Boot Menu: F12" flashes on screen for a moment:
+
+| Manufacturer | Boot menu | Firmware (setup) |
+| --- | --- | --- |
+| Dell, Lenovo (most) | F12 | F2 |
+| HP | F9 | Esc or F10 |
+| Asus, MSI | F8 / F11 | Del |
+| Acer | F12 | F2 |
+
+From the menu pick your USB stick; its name carries the brand or "USB", usually with a "UEFI:" prefix. If there's
+no one-time menu, enter the firmware and move the USB ahead of the disk in the **boot order**. On Windows there's
+another shortcut: Settings → System → Recovery → "Restart now" → boot from a device.
+
+<Callout type="note" title="Secure Boot: usually not a problem">
+Modern computers come with **Secure Boot** on; it only allows signed operating systems to boot. Because RHEL's
+bootloader is signed by Microsoft, it installs fine on most machines even with Secure Boot on. If the USB won't
+boot or you see a "not signed" style warning, turn Secure Boot off temporarily in the firmware and try again.
+</Callout>
+
+### 3. The rest is the same
+
+Once it boots from the USB you get the GRUB menu described below; pick **Install Red Hat Enterprise Linux 10.2**.
+From here the Anaconda screens are **identical** to the ones on the virtual machine, and you can follow the rest
+of this post as it is. The only real difference is on the **Installation Destination (Step 7)** screen: there you
+see your own disk, not an "ATA VBOX HARDDISK". If you're installing only RHEL, pick the right disk and leave
+"Automatic"; if there's another system that must stay on the disk (Windows, say), you're into **dual boot**
+territory, which is a more advanced topic and deserves its own post. When the install finishes, remove the USB so
+the computer boots from the disk.
+
 ## Step 4: installing with Anaconda
 
-Start the virtual machine with **Start**. It boots from the ISO and within a few seconds a menu appears. RHEL's
+Start the virtual machine with **Start** (on a real machine: the same menu appears when you boot from the USB). It
+boots from the ISO and within a few seconds a menu appears. RHEL's
 installer is called **Anaconda;** a program Red Hat has written since 1999, the same in Fedora and RHEL. The
 whole installation revolves around a single screen, shown on this map:
 
@@ -348,7 +421,8 @@ once no box has a red warning mark left, the **Begin Installation** button unloc
    GUI** (it came preselected for me); don't touch the add-ons on the right. I explain what you've chosen in the
    box below. **Done.**
 7. **Installation Destination.** A single disk appears: our virtual disk, named "ATA VBOX HARDDISK" (87.7 GiB in
-   my case), with a tick on it. Leave
+   my case), with a tick on it. On a real machine you may see several disks here; picking the right one is
+   critical (see the *Alternative: installing on a real machine* section above). Leave
    **Storage Configuration: Automatic**. There's also an **Encrypt my data** box at the bottom; remember the
    final note of part 1, on a real server we'd tick it. Leave it empty for now. **Done.** Anaconda will partition
    the disk itself; you'll see what it did in a diagram shortly.

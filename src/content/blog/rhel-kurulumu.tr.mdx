@@ -35,6 +35,8 @@ faq:
     a: 'Otomatik bölümleme kuralı gereği: disk 50 GiB''tan büyükse Anaconda kullanıcı dosyaları için ayrı bir /home mantıksal birimi açar; böylece sistemi yeniden kursan bile kullanıcı dosyaları korunabilir. 30 GB''lık bir diskte bu bölüm oluşmaz, her şey kök bölümünde durur. Benim makinemde 87,7 GiB''lık diskte düzen şöyle oldu: 1 MiB biosboot, 2 GiB /boot, geri kalanı LVM içinde 54,3 GiB kök, 4,8 GiB swap ve 26,5 GiB /home; hepsi XFS dosya sistemiyle.'
   - q: 'Kurulum bittikten sonra ilk yapılacaklar nelerdir?'
     a: 'Sırasıyla: makineyi Red Hat hesabına kaydet (subscription-manager register), tüm sistemi güncelle (sudo dnf update -y) ve yeniden başlat, sonra sanal makinenin "temiz kurulum" anlık görüntüsünü al. Bundan sonra istediğin kadar deneme yapabilir, bozarsan o anlık görüntüye dönebilirsin. İsteğe bağlı olarak Cockpit web konsolunu açıp makineyi tarayıcıdan da izleyebilirsin.'
+  - q: 'RHEL''i gerçek bir bilgisayara kurabilir miyim, sanal makine şart mı?'
+    a: 'Sanal makine şart değil; bu seride güvenli olduğu için sanal makine kullanıyoruz ama RHEL''i doğrudan gerçek bir bilgisayara da kurabilirsin. Tek fark başta: ISO''yu bir USB belleğe Fedora Media Writer, balenaEtcher, Rufus ya da dd ile yazarsın, sonra bilgisayarı BIOS/UEFI açılış menüsünden (çoğu makinede F12) o USB ile başlatırsın. Anaconda ekranları ikisinde de aynıdır. Dikkat: gerçek diskte kendi verin durur; Automatic bölümleme boş alanı kullanır ama kurulumdan önce mutlaka yedek al. Windows ile aynı diskte tutmak istiyorsan çift önyükleme (dual boot) gerekir, o daha ileri bir konudur.'
 ---
 
 import Callout from '../../components/Callout.astro';
@@ -244,7 +246,7 @@ portalına da giriş biletin. Kurulumdan sonra sık uğrayacaksın.
 4. İki ISO var. **Boot ISO** (1 GB) yalnızca kurulum programını içerir; paketleri kurulum sırasında Red Hat'in
    sunucularından indirir ve bunun için kurulumda hesabına **kayıt olmanı ister.** **DVD ISO** (yaklaşık 10 GB)
    her şeyi içinde taşır; kayıt sonraya kalabilir. Ben Boot ISO'yu kullandım: hesabın zaten var, kaydı kurulumda
-   yapmak en kısa yol. Yazının geri kalanı bu yola göre; DVD ISO seçtiysen tek fark, kaydı 5. bölümde terminalden
+   yapmak en kısa yol. Yazının geri kalanı bu yola göre; DVD ISO seçtiysen tek fark, kaydı Adım 5'te terminalden
    yapmak.
 5. İndirme bitince elinde `rhel-10.2-x86_64-boot.iso` adlı bir dosya olur (DVD seçtiysen
    `rhel-10.2-x86_64-dvd.iso`). Adı Bölüm 1'deki paket adları gibi oku: `rhel` ürün, `10.2` sürüm, `x86_64`
@@ -292,9 +294,79 @@ cümlesinin hoş bir örneği: bir diskin tamamı, başka bir diskte tek bir dos
 istersen o dosyayı kopyalaman yeter.
 </Callout>
 
+## Alternatif: gerçek bir bilgisayara kurmak
+
+Bu seri boyunca sanal makine kullanacağız; öğrenirken en güvenli yol bu, çünkü bir şeyi bozarsan anlık görüntüye
+dönersin ve ev sahibi bilgisayarın hiç etkilenmez. Ama RHEL'i gerçek bir bilgisayara, donanımın üstüne doğrudan
+kurmak da isteyebilirsin: eski bir dizüstünü Linux laboratuvarına çevirmek, tam performans almak ya da bir sunucu
+kurmak için. O zaman iki şey değişir; kurulum ortamını bir **USB belleğe** yazarsın ve makineyi **BIOS/UEFI'den**
+o USB'yle açarsın. Ondan sonrası, birazdan göreceğin Anaconda ekranlarının aynısıdır.
+
+<Callout type="caution" title="Önce yedek: gerçek disk, gerçek veri">
+Sanal makinede disk boştu; yanlış yapsan da kaybedecek bir şey yoktu. Gerçek bir bilgisayarda o disk senin
+fotoğraflarının, belgelerinin, belki Windows'unun durduğu yer. Kurulum "Automatic" seçilince diskteki boş alanı
+kullanmaya çalışır, ama diski tamamen silme seçeneği de bir tık ötede. Kurulumdan önce **önemli her şeyi başka bir
+diske ya da buluta yedekle.** Buradaki adımlar, boş ya da gözden çıkarılmış bir bilgisayar içindir.
+</Callout>
+
+### 1. ISO'yu USB belleğe yazmak
+
+İndirdiğin ISO bir disk kalıbıdır; USB'ye dosya gibi kopyalamak yetmez, "yazmak" (flash) gerekir. Boot ISO için
+en az 4 GB, DVD ISO için 16 GB'lık bir USB yeter; işlem USB'deki her şeyi siler. Araçlar:
+
+| Araç | Platform | Not |
+| --- | --- | --- |
+| **Fedora Media Writer** | Windows, macOS, Linux | En kolayı: ISO'yu ve USB'yi seç, Write. Red Hat ailesi için birebir. |
+| **balenaEtcher** | Windows, macOS, Linux | Basit ve görsel; üç adımda yazar. |
+| **Rufus** | Windows | Gelişmiş; sorarsa **DD Image** modunu seç. |
+| **`dd`** | Linux, macOS | Komut satırı; en hızlısı ama en tehlikelisi. |
+
+Komut satırını sevenler için `dd` (Linux). Önce `lsblk` ile USB'nin adını bul (ör. `/dev/sdb`); **yanlış diski
+seçersen o diskin içindekileri silersin,** iki kez kontrol et:
+
+```bash title="dd ile USB'ye yazmak (Linux)" showLineNumbers=false
+lsblk
+sudo dd if=rhel-10.2-x86_64-boot.iso of=/dev/sdb bs=4M status=progress oflag=sync
+```
+
+macOS'ta aynı iş, `diskutil list` ile diski bulup `sudo dd if=... of=/dev/rdiskN bs=4m` biçiminde yapılır.
+
+### 2. USB'den açmak: BIOS/UEFI
+
+Bilgisayarı kapat, USB'yi tak, aç ve açılış logosu görünürken **açılış (boot) menüsü** tuşuna bas. Tuş üreticiye
+göre değişir; ekranda bir an "Boot Menu: F12" gibi bir yazı geçer:
+
+| Üretici | Açılış menüsü | Firmware (setup) |
+| --- | --- | --- |
+| Dell, Lenovo (çoğu) | F12 | F2 |
+| HP | F9 | Esc ya da F10 |
+| Asus, MSI | F8 / F11 | Del |
+| Acer | F12 | F2 |
+
+Menüden USB belleğini seç; adında markası ya da "USB" geçer, genelde başında "UEFI:" olur. Tek seferlik menü
+yoksa firmware'e girip **boot order** (açılış sırası) listesinde USB'yi diskin önüne al. Windows'ta bir kısayol
+daha var: Ayarlar → Sistem → Kurtarma → "Şimdi yeniden başlat" → bir aygıttan başlat.
+
+<Callout type="note" title="Secure Boot: genelde sorun değil">
+Modern bilgisayarlarda **Secure Boot** açık gelir; yalnızca imzalı işletim sistemlerinin açılmasına izin verir.
+RHEL'in önyükleyicisi Microsoft tarafından imzalandığı için çoğu makinede Secure Boot açıkken bile sorunsuz
+kurulur. USB açılmaz ya da "not signed" benzeri bir uyarı görürsen, firmware'den Secure Boot'u geçici olarak
+kapatıp tekrar dene.
+</Callout>
+
+### 3. Gerisi aynı
+
+USB'den açılınca, aşağıda anlattığım GRUB menüsü gelir; **Install Red Hat Enterprise Linux 10.2**'yi seç. Buradan
+sonra Anaconda ekranları sanal makinedekiyle **birebir aynıdır** ve bu yazının geri kalanını olduğu gibi takip
+edebilirsin. Tek gerçek fark **Kurulum Hedefi (Adım 7)** ekranında: orada "ATA VBOX HARDDISK" değil, kendi
+diskin görünür. Yalnızca RHEL kuracaksan doğru diski seçip "Automatic" bırak; diskte kalması gereken başka bir
+sistem (ör. Windows) varsa iş **çift önyükleme (dual boot)** alanına girer, o daha ileri bir konudur ve ayrı bir
+yazıyı hak ediyor. Kurulum bitince USB'yi çıkar ki bilgisayar diskten açılsın.
+
 ## Adım 4: Anaconda ile kurulum
 
-Sanal makineyi **Start** ile başlat. ISO'dan açılır ve birkaç saniye içinde bir menü gelir. RHEL'in kurulum
+Sanal makineyi **Start** ile başlat (gerçek bir bilgisayarda: USB'den açtığında aynı menü gelir). ISO'dan açılır
+ve birkaç saniye içinde bir menü gelir. RHEL'in kurulum
 programının adı **Anaconda;** 1999'dan beri Red Hat'in yazdığı, Fedora'da ve RHEL'de aynı olan bir program.
 Bütün kurulum, şu haritadaki tek ekran etrafında döner:
 
@@ -333,12 +405,14 @@ uyarı işareti kalan kutu olmayınca **Begin Installation** düğmesi açılır
    Selection kutusu "Red Hat CDN requires registration" diyerek gri kalır. **Account** seçili, Red Hat kullanıcı
    adını ve parolanı yaz, **Register.** Birkaç saniye sonra "Not registered" yazısı kayıt bilgisiyle değişir.
    "Connect to Red Hat Insights" kutusu işaretli kalsın; ne olduğunu Bölüm 1'de anlatmıştım. **Done.** (DVD ISO
-   ile kurarken bu kutuyu atlayıp kaydı sonradan terminalden yapabilirsin; 5. bölümde gösteriyorum.)
+   ile kurarken bu kutuyu atlayıp kaydı sonradan terminalden yapabilirsin; Adım 5'te gösteriyorum.)
 6. **Yazılım seçimi (Software Selection).** Kayıttan sonra kutu açılır. Sol listeden **Server with GUI** seç
    (bende varsayılan olarak seçili geldi); sağdaki ek paketlere dokunma. Ne seçtiğini aşağıdaki kutuda anlattım.
    **Done.**
 7. **Kurulum hedefi (Installation Destination).** Tek disk görünür: "ATA VBOX HARDDISK" adlı sanal diskimiz
-   (bende 87,7 GiB), üstünde onay işareti. **Storage Configuration: Automatic** kalsın. Altta bir de **Encrypt my data** kutusu var; Bölüm 1'in
+   (bende 87,7 GiB), üstünde onay işareti. Gerçek bir bilgisayarda burada birden çok disk görebilirsin; doğru
+   olanı seçmek kritik (yukarıdaki *Alternatif: gerçek bir bilgisayara kurmak* bölümüne bak). **Storage
+   Configuration: Automatic** kalsın. Altta bir de **Encrypt my data** kutusu var; Bölüm 1'in
    son notunu hatırla, gerçek bir sunucuda bunu işaretlerdik. Şimdilik boş bırak. **Done.** Anaconda diski
    kendi bölecek; ne yaptığını birazdan şemayla göreceksin.
 8. **Ağ ve makine adı (Network & Host Name).** Sağ üstteki anahtar **ON** olsun (VirtualBox'ta genelde açık
