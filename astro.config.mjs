@@ -15,7 +15,34 @@ import pagefind from 'astro-pagefind';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import { defineConfig } from 'astro/config';
+import { readFileSync, readdirSync } from 'node:fs';
 import { remarkReadingTime } from './src/lib/remark-reading-time.mjs';
+
+// Blog yazıları iki dilde FARKLI slug taşır (ör. linux-dosya-sistemi ↔ the-linux-file-system).
+// @astrojs/sitemap'in otomatik i18n eşleşmesi yalnızca "aynı yol + /en/ öneki" için çalıştığından
+// yazıların hreflang alternatifleri sitemap'e düşmez. translationId (= dosya taban adı) ile eşleyip
+// her iki URL'ye de xhtml:link alternatiflerini elle ekliyoruz (çift dilli SEO için kritik).
+const SITE_URL = 'https://mehmetnuri.com';
+const blogAlternates = (() => {
+	const map = new Map();
+	const dir = new URL('./src/content/blog/', import.meta.url);
+	for (const file of readdirSync(dir)) {
+		if (!file.endsWith('.en.mdx')) continue;
+		const base = file.slice(0, -'.en.mdx'.length);
+		const head = readFileSync(new URL(file, dir), 'utf8').slice(0, 1500);
+		const m = head.match(/^slug:\s*['"]?([^'"\n]+?)['"]?\s*$/m);
+		const enSlug = (m ? m[1] : base).trim();
+		const trUrl = `${SITE_URL}/blog/${base}/`;
+		const enUrl = `${SITE_URL}/en/blog/${enSlug}/`;
+		const links = [
+			{ lang: 'tr-TR', url: trUrl },
+			{ lang: 'en-US', url: enUrl },
+		];
+		map.set(trUrl, links);
+		map.set(enUrl, links);
+	}
+	return map;
+})();
 
 // https://astro.build/config
 export default defineConfig({
@@ -76,6 +103,9 @@ export default defineConfig({
 				else if (/\/(etiket|kategori|archive|page)\//.test(u)) item.priority = 0.5;
 				else item.priority = 0.6;
 				item.changefreq = 'weekly';
+				// Farklı slug'lı blog yazılarına hreflang alternatiflerini ekle.
+				const alt = blogAlternates.get(u);
+				if (alt && (!item.links || item.links.length === 0)) item.links = alt;
 				return item;
 			},
 		}),

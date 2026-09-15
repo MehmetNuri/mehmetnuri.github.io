@@ -155,7 +155,12 @@ const swRegister = `if('serviceWorker' in navigator){window.addEventListener('lo
 	openGraph={{
 		basic: { title, type, image: ogImageURL },
 		image: ogImageMeta,
-		optional: { description, siteName: SITE_TITLE, locale: ogLocale },
+		optional: {
+			description,
+			siteName: SITE_TITLE,
+			locale: ogLocale,
+			localeAlternate: [lang === 'en' ? 'tr_TR' : 'en_US'],
+		},
 		...(articleMeta ? { article: articleMeta } : {}),
 	}}
 	twitter={{ card: 'summary_large_image', title, description, image: ogImageURL }}
